@@ -1,0 +1,135 @@
+[
+  {
+    "id": "core",
+    "name": "Ops orchestrator",
+    "code": "AGENT 00",
+    "icon": "orbit",
+    "status": "Ready",
+    "mode": "Local routing",
+    "description": "The coordinating layer. Connects events to the right specialist and keeps each case moving with context, evidence, and clear ownership.",
+    "tools": [
+      "Case registry",
+      "Workflow router",
+      "Approval service"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Routes alerts and requests, groups related work, and brings decisions to one approval inbox. This first build routes three read-only workflows. It does not execute production changes.",
+    "enabled": true,
+    "phase": 1
+  },
+  {
+    "id": "incident",
+    "name": "Incident & RCA",
+    "code": "AGENT 01",
+    "icon": "pulse",
+    "status": "Ready",
+    "mode": "Read only",
+    "description": "Connects symptoms, telemetry, and deployment changes to build an evidence-backed investigation.",
+    "tools": [
+      "New Relic",
+      "Splunk",
+      "Release history"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Correlates logs and metrics with change history. Keeps observed facts separate from hypotheses and creates a draft RCA for review.",
+    "enabled": true,
+    "phase": 1
+  },
+  {
+    "id": "release",
+    "name": "Release & pipeline",
+    "code": "AGENT 02",
+    "icon": "rocket",
+    "status": "Ready",
+    "mode": "Read only",
+    "description": "Follows every release from preflight through verification, with a clear view of affected sites.",
+    "tools": [
+      "Cloud Manager",
+      "GitHub",
+      "Playwright"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Checks pipeline state, selects impacted sites, and collects test evidence. An approval brief is tied to the exact release revision.",
+    "enabled": true,
+    "phase": 1
+  },
+  {
+    "id": "security",
+    "name": "Security & quality",
+    "code": "AGENT 03",
+    "icon": "shield",
+    "status": "Planned",
+    "mode": "Not implemented",
+    "description": "Turns noisy findings into prioritized fixes and reviewable changes.",
+    "tools": [
+      "Snyk",
+      "Sonar",
+      "Dispatcher baseline"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Groups security findings, identifies AEM patterns, and proposes focused changes. Opening a PR and merging it are distinct governed actions.",
+    "enabled": false,
+    "phase": 2
+  },
+  {
+    "id": "factory",
+    "name": "Site factory",
+    "code": "AGENT 04",
+    "icon": "layers",
+    "status": "Planned",
+    "mode": "Not implemented",
+    "description": "Builds a complete site proposal from approved templates, market requirements, and platform standards.",
+    "tools": [
+      "Site templates",
+      "GitHub",
+      "AEM metadata"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Prepares vhosts, farms, repoinit and a content-provisioning plan. Live-copy creation and publishing remain separately approved operations.",
+    "enabled": false,
+    "phase": 3
+  },
+  {
+    "id": "governance",
+    "name": "Content governance",
+    "code": "AGENT 05",
+    "icon": "globe",
+    "status": "Planned",
+    "mode": "Not implemented",
+    "description": "Makes site health visible across accessibility, SEO, links, and inheritance.",
+    "tools": [
+      "Playwright",
+      "AEM inventory",
+      "Accessibility checks"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Runs bounded checks and reports actual coverage. Intentional localization exceptions are tracked so they do not become false alarms.",
+    "enabled": false,
+    "phase": 3
+  },
+  {
+    "id": "reporting",
+    "name": "Reporting & docs",
+    "code": "AGENT 06",
+    "icon": "file",
+    "status": "Ready",
+    "mode": "Read only",
+    "description": "Brings platform activity together into clear reports, release notes, and documentation.",
+    "tools": [
+      "Evidence store",
+      "Run history",
+      "MkDocs"
+    ],
+    "metric": "0",
+    "label": "persisted runs",
+    "detail": "Builds reports from verified run evidence. Each material claim points to a source. Publishing follows a destination-specific policy.",
+    "enabled": true,
+    "phase": 1
+  }
+]

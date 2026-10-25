@@ -1,0 +1,10 @@
+[project]
+name = "aaaem-agentic-platform"
+version = "0.1.0"
+description = "Standalone AAAEM operations workspace and bounded Phase 1 agent workflows"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["tests"]
+addopts = "-q"

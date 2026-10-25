@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      AAAEM_MODE: local
+      AAAEM_MODEL_PROVIDER: fixture
+      DATABASE_URL: postgresql+psycopg://aaaem:aaaem-local-only@db:5432/aaaem
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: aaaem
+      POSTGRES_PASSWORD: aaaem-local-only
+      POSTGRES_DB: aaaem
+    volumes:
+      - aaaem-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aaaem -d aaaem"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  aaaem-db:

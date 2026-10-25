@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="AAAEM Platform — interactive agentic operations UI prototype. All data and actions are simulated.">
+<title>AAAEM — Agentic Platform</title>
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to workspace</a>
+<aside class="sidebar" id="sidebar">
+<div class="brand"><svg class="brandmark" viewBox="0 0 40 42" aria-hidden="true"><path d="M3 32 20 3l17 29M11 32l9-16 9 16M3 39h34M15 32h10"/></svg><div><div class="brand-name">AAAEM</div><div class="brand-caption">AGENTIC PLATFORM</div></div></div>
+<div class="workspace"><span class="work-icon" data-icon="layers"></span><div>Platform operations<div class="muted" style="font-size:9px">Standalone workspace</div></div></div>
+<div class="nav-label">Workspace</div>
+<nav aria-label="Main navigation" id="navigation"></nav>
+<div class="nav-divider"></div><div class="nav-label">System</div>
+<button class="nav-item" data-nav="integrations" aria-label="Integrations" title="Integrations"><span data-icon="plug"></span><span>Integrations</span></button>
+<button class="nav-item" data-action="settings" aria-label="Preferences" title="Preferences"><span data-icon="sliders"></span><span>Preferences</span></button>
+<div class="sidebar-bottom"><div class="pulse-widget"><div class="pulse-row"><span class="dot pulsing"></span>LOCAL WORKSPACE</div><div class="pulse-bars" id="pulse-bars"></div><div class="small muted" style="font-size:9px;margin-top:8px">Persistent runs · fixture integrations</div></div><div class="sidebar-meta"><span>AAAEM / v0.1</span><span>PHASE 1</span></div></div>
+</aside>
+<div class="main-shell">
+<header class="topbar">
+<button class="icon-button mobile-menu" aria-label="Open navigation" data-action="menu"><span data-icon="menu"></span></button>
+<div class="breadcrumb"><span>Workspace</span><span data-icon="chevron"></span><b id="breadcrumb-title">Mission control</b></div>
+<div class="top-actions">
+<button class="search-button" data-action="search" aria-label="Search workspace"><span data-icon="search"></span><span>Search workspace</span><kbd>⌘ K</kbd></button>
+<div class="demo-badge" id="connection-badge">LOCAL · CONNECTING</div>
+<button class="icon-button" id="motion-button" data-action="motion" aria-label="Pause decorative motion" title="Pause decorative motion"><span data-icon="pause"></span></button>
+<button class="avatar" data-action="about" aria-label="About AAAEM">AA</button>
+</div>
+</header>
+<main id="main" tabindex="-1"><div class="load-state">Connecting to your workspace…</div></main>
+</div>
+<dialog id="modal" aria-label="Workspace dialog"></dialog>
+<div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+<script src="/assets/app.js" defer></script>
+</body>
+</html>
