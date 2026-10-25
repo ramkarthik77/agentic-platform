@@ -1,6 +1,15 @@
-# Validation record — October 23, 2026
+# Validation record — October 25, 2026
 
-## Passed in this build environment
+## GitHub Actions — October 25, 2026
+
+The [first repository validation run](https://github.com/ramkarthik77/agentic-platform/actions/runs/40234118073) passed for application commit `e45dd28b1315241e664b1caebf8ef1050cc584f8`.
+
+- 24 automated tests passed, with no skipped tests and one upstream deprecation warning.
+- The PostgreSQL integration test passed against the workflow's PostgreSQL 16 service. It was previously skipped locally because no database service was available.
+- Dependency installation and consistency, JavaScript syntax, and Python compilation checks passed on the GitHub-hosted runner.
+- This workflow validates the application; it does not deploy it.
+
+## Passed in the local build environment — October 23, 2026
 
 - 23 automated tests using SQLite, FastAPI's test client, and the actual local worker implementation.
 - API-submitted background execution through persisted evidence and a completed draft.
@@ -23,7 +32,6 @@
 
 ## Not execution-verified here
 
-- PostgreSQL integration: one optional test skipped because a database service was not configured. The GitHub Actions workflow provisions a disposable test database, but has not run remotely.
 - Docker build/Compose: Docker is not available in the build environment.
 - Connected browser UI: the managed preview supervisor could not launch the environment's Python executable. The approved visual prototype had desktop/mobile/tablet checks in the previous milestone, but the newly connected UI has not had a live browser end-to-end pass. JavaScript syntax and backend behavior were checked independently.
 - Bedrock model inference: no account/model credentials were used; only the adapter's validation behavior was tested with a stub response.
