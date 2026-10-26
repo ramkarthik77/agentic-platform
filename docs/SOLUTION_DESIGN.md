@@ -1,6 +1,6 @@
 # AAAEM Platform Agentic System — Solution Design
 
-**Status:** Reference architecture. A local Phase 1 application with fixture integrations is implemented; enterprise connections and AWS deployment remain pending.  
+**Status:** Long-term reference architecture. Version 0.2 implements seven bounded workflows and configurable integrations using a PostgreSQL-backed runtime. Step Functions/SQS and several advanced capabilities below remain future work. See [implementation status](IMPLEMENTATION_STATUS.md) and [AWS transition](AWS_TRANSITION.md) for the actual delivered scope.
 **Date:** October 23, 2026  
 **Scope:** A new, standalone agentic system for the AAAEM Platform, with seven agent roles supporting its 100+ AEM sites.
 

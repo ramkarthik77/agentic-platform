@@ -1,41 +1,31 @@
-# Validation record — October 25, 2026
+# Validation record — October 26, 2026
 
-## GitHub Actions — October 25, 2026
+## Version 0.2 local checks
 
-The [first repository validation run](https://github.com/ramkarthik77/agentic-platform/actions/runs/40234118073) passed for application commit `e45dd28b1315241e664b1caebf8ef1050cc584f8`.
+- 70 automated tests passed; two integration tests were skipped locally because PostgreSQL and the browser-test runtime were not enabled. One upstream Starlette HTTPX test-client deprecation warning remains.
+- All seven workflow types, conditional persisted handoffs, restart recovery, cancellation, idempotent schedules and signed intake were exercised.
+- Tests cover role/environment isolation, exact-file PR approval/expiry, OIDC signature/issuer/audience/nonce/authorized-party validation, PKCE callback consumption, session creation and logout.
+- HTTP MockTransport tests exercise native adapters and complete live-mode release handling without real credentials. Missing served-revision proof cannot yield `verified`. Wrong environment/fixture bridge responses, redirects, response limits and truncated pagination are rejected or marked incomplete.
+- Mock GitHub tests verify draft-only PR creation, reconciliation after a lost response, changed-base rejection and rejection of edited tree/parent commits under an existing approval.
+- JavaScript syntax, Python compilation and installed dependency consistency passed.
+- Terraform formatting passed and the provider lock was generated. Local schema validation could not start the AWS provider plugin in this execution environment; CI performs validation on a clean runner.
 
-- 24 automated tests passed, with no skipped tests and one upstream deprecation warning.
-- The PostgreSQL integration test passed against the workflow's PostgreSQL 16 service. It was previously skipped locally because no database service was available.
-- Dependency installation and consistency, JavaScript syntax, and Python compilation checks passed on the GitHub-hosted runner.
-- This workflow validates the application; it does not deploy it.
+## CI verification
 
-## Passed in the local build environment — October 23, 2026
+The version 0.2 workflow is configured to run PostgreSQL 16 integration, a real Chromium UI flow, Terraform validation, application container startup and verifier-container Chromium launch. The pull request's checks are the authoritative result; configured checks are not claimed as passed until their run completes.
 
-- 23 automated tests using SQLite, FastAPI's test client, and the actual local worker implementation.
-- API-submitted background execution through persisted evidence and a completed draft.
-- Exact-input idempotency, conflicting key rejection and strict request validation.
-- Release impact selection: 14 Theme 04 consumers and conservative expansion to 108 sites.
-- Missing check coverage and mismatched revisions cannot produce a verified assessment.
-- Failed checks remain failed; successful deployment alone is not verification.
-- Incident outputs retain unconfirmed root cause.
-- Reporting reads stored history and excludes other environments.
-- Evidence content hashes and citation references are retained in downloadable reports.
-- Review digest/expiry/result binding, duplicate decision replay and conflicting decision rejection.
-- Cancelled and expired workers cannot commit later results under an obsolete lease owner.
-- Concurrent workers claim a queued run only once; recovery attempts are bounded.
-- Provider failures produce a failed run without a completed report; manual retry works.
-- Database records and review reasons survive application teardown and restart.
-- Read-only tool policy and environment boundaries reject escalation.
-- Production mode fails closed until enterprise authentication is implemented.
-- A stubbed Bedrock response with fabricated evidence IDs is rejected.
-- JavaScript syntax check, Python compilation, and installed dependency consistency check.
+The UI test launches a mission, inspects specialist handoffs, accepts a dossier, creates/downloads a site bundle, separately approves/simulates its PR, checks persistence after refresh, probes an integration, and checks a mobile layout. Screenshots are retained as the `browser-evidence` CI artifact.
 
-## Not execution-verified here
+## Environment limitation
 
-- Docker build/Compose: Docker is not available in the build environment.
-- Connected browser UI: the managed preview supervisor could not launch the environment's Python executable. The approved visual prototype had desktop/mobile/tablet checks in the previous milestone, but the newly connected UI has not had a live browser end-to-end pass. JavaScript syntax and backend behavior were checked independently.
-- Bedrock model inference: no account/model credentials were used; only the adapter's validation behavior was tested with a stub response.
-- Live Cloud Manager, AEM, New Relic, Splunk, GitHub, Teams, Snyk, Sonar or browser scanning: not connected. All enterprise evidence is synthetic.
-- AWS resources, SSO/RBAC and Step Functions/SQS dispatch: not deployed.
+The managed local browser preview could not launch `.venv/bin/python`: its interpreter target is unavailable in the preview supervisor's environment. Connected local browser QA remains unverified here. The earlier approved visual prototype had desktop/tablet/mobile checks; that is separate from the connected version 0.2 browser flow.
 
-The test runner emitted one upstream Starlette deprecation warning for the current HTTPX test-client compatibility path; all tests passed. Tests are included in the package and can be rerun after installation.
+## Not tenant-validated or deployed
+
+No actual Cloud Manager, New Relic, Splunk, Snyk, Sonar, AEM metadata bridge, tenant OIDC session, GitHub target-repository PR action, Bedrock/compatible-model inference, or public-site scan was performed. Integration tests use controlled HTTP doubles or fixture data. There has been no AWS plan/apply, deployment, load test, security certification or backup-restore drill.
+
+Step Functions/SQS, native Teams/vendor receivers, AEM provisioning, source-code auto-fixes and automatic publishing are not implemented; see IMPLEMENTATION_STATUS.md.
+
+## Previous baseline
+
+The [Phase 1 repository run](https://github.com/ramkarthik77/agentic-platform/actions/runs/40234118073) passed 24 tests, including PostgreSQL, for commit `e45dd28b1315241e664b1caebf8ef1050cc584f8`. That validates the earlier three-role milestone, not all changes in version 0.2.

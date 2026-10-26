@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from sqlalchemy import (JSON, Column, ForeignKey, Integer, MetaData, String,
-                        Table, Text, create_engine, event, select)
+                        Table, Text, create_engine, event, select, text)
 
 metadata = MetaData()
 schema = Table("schema_version", metadata, Column("version", Integer, primary_key=True))
@@ -39,6 +39,27 @@ audit = Table("audit", metadata,
     Column("id", Integer, primary_key=True, autoincrement=True), Column("action", String(80), nullable=False),
     Column("actor", String(80), nullable=False), Column("resource", String(80), nullable=False),
     Column("detail", JSON, nullable=False), Column("created_at", String(40), nullable=False))
+workspace = Table('workspace_metadata', metadata, Column('key', String(80), primary_key=True), Column('value', JSON, nullable=False))
+owners = Table('run_owners', metadata, Column('run_id', String(40), ForeignKey('runs.id'), primary_key=True),
+    Column('actor', String(80), nullable=False), Column('parent_id', String(40), ForeignKey('runs.id')))
+handoffs = Table('handoffs', metadata,
+    Column('id', String(100), primary_key=True), Column('parent_id', String(40), ForeignKey('runs.id'), nullable=False),
+    Column('position', Integer, nullable=False), Column('child_id', String(40), ForeignKey('runs.id'), unique=True, nullable=False))
+auth_flows = Table('auth_flows', metadata, Column('state_hash', String(64), primary_key=True),
+    Column('binding_hash', String(64), nullable=False), Column('nonce', String(100), nullable=False),
+    Column('verifier', String(120), nullable=False), Column('expires_at', String(40), nullable=False))
+sessions = Table('sessions', metadata, Column('id_hash', String(64), primary_key=True),
+    Column('actor', String(80), nullable=False), Column('display_name', String(160), nullable=False),
+    Column('grants', JSON, nullable=False), Column('csrf', String(100), nullable=False),
+    Column('expires_at', String(40), nullable=False))
+changes = Table('changes', metadata, Column('id', String(40), primary_key=True),
+    Column('run_id', String(40), ForeignKey('runs.id'), unique=True, nullable=False),
+    Column('environment', String(20), nullable=False), Column('payload', JSON, nullable=False),
+    Column('digest', String(64), nullable=False), Column('status', String(30), nullable=False),
+    Column('created_at', String(40), nullable=False), Column('expires_at', String(40), nullable=False),
+    Column('proposed_by', String(80), nullable=False), Column('reviewed_by', String(80)),
+    Column('reason', Text), Column('result', JSON), Column('error', Text),
+    Column('lease_until', String(40)), Column('owner', String(40)))
 
 
 def now(offset=0):
@@ -66,17 +87,35 @@ def make_engine(url):
     return engine
 
 
-def initialize(engine, registry):
-    metadata.create_all(engine)
+def initialize(engine, registry, integration_mode='fixture'):
     with engine.begin() as conn:
+        if engine.dialect.name == 'postgresql':
+            # Serialize additive migrations and registry refresh across API/worker replicas.
+            conn.execute(text('SELECT pg_advisory_xact_lock(1851223541)'))
+        metadata.create_all(conn)
         version = conn.execute(select(schema.c.version)).scalar_one_or_none()
         if version is None:
-            conn.execute(schema.insert().values(version=1))
-        elif version != 1:
+            conn.execute(schema.insert().values(version=2))
+        elif version == 1:
+            # Version 2 adds tables only; existing run/evidence/review records are retained.
+            conn.execute(schema.update().values(version=2))
+        elif version != 2:
             raise RuntimeError("Unsupported database schema; migration required")
-        if conn.execute(select(sites.c.id).limit(1)).first() is None:
-            conn.execute(sites.insert(), [{"id": s["id"], "data": s} for s in registry])
-            emit(conn, None, "core", "Workspace initialized", "108 fixture sites registered. Phase 1 is ready.")
+        stored = conn.execute(select(workspace.c.value).where(workspace.c.key == 'integration_mode')).scalar_one_or_none()
+        has_sites = conn.execute(select(sites.c.data).limit(1)).scalar_one_or_none()
+        inferred = has_sites.get('source') if has_sites else None
+        if (stored and stored != integration_mode) or (not stored and inferred == 'fixture' and integration_mode != 'fixture'):
+            raise ValueError('Use a separate database when switching fixture/live mode; existing evidence must retain provenance')
+        if not stored:
+            conn.execute(workspace.insert().values(key='integration_mode', value=integration_mode))
+        old_registry = [r[0] for r in conn.execute(select(sites.c.data))]
+        refresh = integration_mode == 'live' and digest(sorted(old_registry, key=lambda s: s['id'])) != digest(sorted(registry, key=lambda s: s['id']))
+        if refresh:
+            conn.execute(sites.delete())
+        if not has_sites or refresh:
+            if registry:
+                conn.execute(sites.insert(), [{'id': s['id'], 'data': s} for s in registry])
+            emit(conn, None, 'core', 'Workspace initialized', f'{len(registry)} {integration_mode} sites registered.')
 
 
 def emit(conn, run_id, agent, title, detail=""):

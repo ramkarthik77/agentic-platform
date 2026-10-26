@@ -7,6 +7,9 @@ COPY backend ./backend
 COPY web ./web
 COPY agents ./agents
 COPY scripts ./scripts
+COPY config ./config
+COPY templates ./templates
+COPY docs ./docs
 RUN mkdir -p /app/.data && chown -R aaaem:aaaem /app
 USER aaaem
 EXPOSE 8000

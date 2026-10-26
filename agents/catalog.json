@@ -5,7 +5,7 @@
     "code": "AGENT 00",
     "icon": "orbit",
     "status": "Ready",
-    "mode": "Local routing",
+    "mode": "Coordinated missions",
     "description": "The coordinating layer. Connects events to the right specialist and keeps each case moving with context, evidence, and clear ownership.",
     "tools": [
       "Case registry",
@@ -14,7 +14,7 @@
     ],
     "metric": "0",
     "label": "persisted runs",
-    "detail": "Routes alerts and requests, groups related work, and brings decisions to one approval inbox. This first build routes three read-only workflows. It does not execute production changes.",
+    "detail": "Assigns persisted specialist runs for release readiness, incident investigation, site onboarding, and platform health. Handoffs survive restarts. Consolidates results; never approves its own changes.",
     "enabled": true,
     "phase": 1
   },
@@ -24,7 +24,7 @@
     "code": "AGENT 01",
     "icon": "pulse",
     "status": "Ready",
-    "mode": "Read only",
+    "mode": "Evidence & proposals",
     "description": "Connects symptoms, telemetry, and deployment changes to build an evidence-backed investigation.",
     "tools": [
       "New Relic",
@@ -43,7 +43,7 @@
     "code": "AGENT 02",
     "icon": "rocket",
     "status": "Ready",
-    "mode": "Read only",
+    "mode": "Evidence & proposals",
     "description": "Follows every release from preflight through verification, with a clear view of affected sites.",
     "tools": [
       "Cloud Manager",
@@ -61,8 +61,8 @@
     "name": "Security & quality",
     "code": "AGENT 03",
     "icon": "shield",
-    "status": "Planned",
-    "mode": "Not implemented",
+    "status": "Ready",
+    "mode": "Evidence & proposals",
     "description": "Turns noisy findings into prioritized fixes and reviewable changes.",
     "tools": [
       "Snyk",
@@ -71,17 +71,17 @@
     ],
     "metric": "0",
     "label": "persisted runs",
-    "detail": "Groups security findings, identifies AEM patterns, and proposes focused changes. Opening a PR and merging it are distinct governed actions.",
-    "enabled": false,
-    "phase": 2
+    "detail": "Collects Snyk and Sonar findings and performs bounded AEM pattern review of configured files. Produces a remediation plan; source-code fixes require engineering validation.",
+    "enabled": true,
+    "phase": 1
   },
   {
     "id": "factory",
     "name": "Site factory",
     "code": "AGENT 04",
     "icon": "layers",
-    "status": "Planned",
-    "mode": "Not implemented",
+    "status": "Ready",
+    "mode": "Evidence & proposals",
     "description": "Builds a complete site proposal from approved templates, market requirements, and platform standards.",
     "tools": [
       "Site templates",
@@ -90,17 +90,17 @@
     ],
     "metric": "0",
     "label": "persisted runs",
-    "detail": "Prepares vhosts, farms, repoinit and a content-provisioning plan. Live-copy creation and publishing remain separately approved operations.",
-    "enabled": false,
-    "phase": 3
+    "detail": "Renders reviewed platform templates into one downloadable bundle and a provisioning plan. A separate exact-file approval can create a draft PR. AEM live-copy creation and publication remain external provisioning steps.",
+    "enabled": true,
+    "phase": 1
   },
   {
     "id": "governance",
     "name": "Content governance",
     "code": "AGENT 05",
     "icon": "globe",
-    "status": "Planned",
-    "mode": "Not implemented",
+    "status": "Ready",
+    "mode": "Evidence & proposals",
     "description": "Makes site health visible across accessibility, SEO, links, and inheritance.",
     "tools": [
       "Playwright",
@@ -109,9 +109,9 @@
     ],
     "metric": "0",
     "label": "persisted runs",
-    "detail": "Runs bounded checks and reports actual coverage. Intentional localization exceptions are tracked so they do not become false alarms.",
-    "enabled": false,
-    "phase": 3
+    "detail": "Combines configured page checks with AEM metadata from the supported bridge contract. Reports coverage and missing evidence, with approved inheritance exceptions.",
+    "enabled": true,
+    "phase": 1
   },
   {
     "id": "reporting",
@@ -119,7 +119,7 @@
     "code": "AGENT 06",
     "icon": "file",
     "status": "Ready",
-    "mode": "Read only",
+    "mode": "Evidence & proposals",
     "description": "Brings platform activity together into clear reports, release notes, and documentation.",
     "tools": [
       "Evidence store",
@@ -128,7 +128,7 @@
     ],
     "metric": "0",
     "label": "persisted runs",
-    "detail": "Builds reports from verified run evidence. Each material claim points to a source. Publishing follows a destination-specific policy.",
+    "detail": "Builds reports from persisted run evidence. Markdown files can be exported or proposed as a documentation PR through the separate approval flow.",
     "enabled": true,
     "phase": 1
   }

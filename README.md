@@ -1,108 +1,103 @@
 # AAAEM Agentic Platform
 
-Repository: [ramkarthik77/agentic-platform](https://github.com/ramkarthik77/agentic-platform).
+A standalone operations workspace for the AAAEM platform: **one orchestrator and six specialists**, an animated web UI, persisted evidence, environment-scoped access, and governed draft pull requests. It is independent of other applications.
 
-The approved AAAEM interface, connected to a standalone local backend. This is the first implementation milestone: persistent runs, a database-backed queue, scoped evidence collection, draft review, and reports for the Incident, Release, and Reporting agents.
-
-**Integration data is synthetic.** The default model provider is deterministic fixture mode. No AWS account, AI API, or enterprise credentials are needed to exercise the application.
+**Version 0.2 is a configuration-ready foundation, not a tenant-certified production system.** All seven roles execute bounded workflows. The default experience uses clearly labeled synthetic data and deterministic summaries; no credentials are required. Live adapters, OIDC, a separate browser verifier, and an AWS deployment starter are included. Your tenant connections and hosting still need configuration and acceptance testing.
 
 ## Run locally
 
-Use Python 3.12 or newer. Clone the repository, then run on macOS/Linux:
+Requires Python 3.12 or newer. Node is only needed for the JavaScript syntax check.
 
 ```bash
-git clone https://github.com/ramkarthik77/agentic-platform.git
-cd agentic-platform
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.lock
+cp .env.example .env
 python scripts/serve.py
 ```
 
-Open **http://localhost:8000**. Keep the terminal running. Stop with Ctrl+C. Restarting the same command retains runs and decisions in `.data/aaaem.db`.
+Open **http://localhost:8000**. On Windows, activate with `.venv\Scripts\Activate.ps1` and use `Copy-Item .env.example .env`. The SQLite database in `.data/aaaem.db` survives restarts. Local mode grants a trusted operator access to all environments; bind it to loopback. The default `production` selection in the UI is a **fixture environment**, not an actual deployment.
 
-On Windows, create the venv with `py -3.12 -m venv .venv`, then use `.venv\Scripts\python.exe` in place of `python` in the install and serve commands.
-
-The HTML now requires the backend; opening `web/index.html` directly is not supported. Node is optional and only used for the JavaScript syntax check and the `npm run dev` convenience command after activating the Python environment.
-
-## Try the full workflow
-
-1. Click **Start an agent run** and choose **Release verification**.
-2. Keep **Theme 04 consumers** selected. The backend selects 14 of the 108 registered fixture sites.
-3. Watch the activity stream, then inspect the run's timeline and expandable evidence records.
-4. Open **Approvals**, review the dossier, and accept or decline the draft. A decision acknowledges the dossier only; it cannot deploy, publish, or approve a Cloud Manager gate.
-5. Open **Reports** and download the generated Markdown dossier.
-6. Refresh the browser or restart the server. The run, evidence, report, and review decision remain.
-7. Try **Failed checks**, **Missing verification evidence**, and **Unknown dependencies**. Missing or revision-mismatched evidence results in an inconclusive assessment; unknown dependency scope expands to all fixture sites.
-8. Run **Incident investigation**, then **Platform brief** to summarize persisted activity in the selected environment.
-
-The environment picker filters the workspace and scopes new work. Choosing “production” is still a fixture-only read workflow.
-
-## Implemented boundaries
-
-| Area | Current behavior |
-| --- | --- |
-| UI | Original constellation, motion controls, accents, agent fleet, releases, incidents, registry, reviews, reports and integration status |
-| Ops dispatcher | Routes three explicit workflow kinds; bounded queue, claim leases, cancellation, manual retry and restart recovery |
-| Release | Revision-bound fixture verification, dependency scope, missing/failing evidence handling, review dossier |
-| Incident | Bounded fixture telemetry/logs, deployment correlation, unconfirmed RCA draft |
-| Reporting | Summary of up to 100 persisted runs in the selected environment; no external publishing |
-| Persistence | SQLite by default; SQLAlchemy PostgreSQL adapter and optional integration test |
-| Tools | Server-created execution context; read allowlists by role and environment; no write executor |
-| Review | Exact payload/result hashes, 24-hour expiry, atomic decision, idempotent replay, retained reason |
-| Model | Fixture provider by default; opt-in Bedrock Converse adapter with validated output and known evidence IDs |
-| Other agents | Security, Site Factory, and Governance remain explicitly planned |
-
-The local queue is the development runtime. The production design still assigns durable execution to Step Functions Standard, queue transport to SQS, compute to ECS/Fargate, application data to RDS, and evidence blobs to S3. See [AWS transition](docs/AWS_TRANSITION.md).
-
-## Optional model-backed summaries
-
-After your organization approves the model, configure AWS credentials through a normal AWS profile and export:
-
-```bash
-export AAAEM_MODEL_PROVIDER=bedrock
-export AAAEM_BEDROCK_MODEL_ID='your-approved-model-or-inference-profile-id'
-export AWS_REGION=us-east-1
-export AWS_PROFILE='your-local-profile'
-python scripts/serve.py
-```
-
-This enables real, billable model requests. Enterprise integrations remain fixtures. The model summarizes evidence; it does not choose arbitrary tools or execute changes. Invalid JSON or unknown evidence citations fail the run. The deterministic verification assessment is separate from model prose. Bedrock was not contacted during validation.
-
-`.env.example` documents settings; the server reads process environment variables and does not automatically load a `.env` file.
-
-## Optional Docker + PostgreSQL
+Docker with local PostgreSQL is also available:
 
 ```bash
 docker compose up --build
 ```
 
-Open http://localhost:8000. Named volumes preserve the database. `docker compose down` stops services while retaining volumes. The application port is published only on loopback. Docker was unavailable in the build environment, so this path is provided but not execution-verified here.
+This publishes the application on loopback only. `docker compose down` retains the named database volume.
+
+## What works
+
+| Agent | Implemented behavior | Boundary |
+| --- | --- | --- |
+| Ops orchestrator | Persistent specialist handoffs, conditional incident investigation, consolidated mission report, cancellation and restart recovery | Four defined mission types; no unrestricted planner |
+| Incident & RCA | New Relic metrics, Splunk summaries, deploy correlation, evidence-linked RCA draft | Root cause remains unconfirmed; no arbitrary shell/runbook execution |
+| Release & pipeline | Cloud Manager tracking, registry scope, browser checks, revision/freshness validation, review dossier | Does not start deployments or approve Cloud Manager gates |
+| Security & quality | Snyk/Sonar triage, quality gate checks, three AEM/Dispatcher heuristics on configured GitHub files, remediation report | Does not generate or test source-code fixes |
+| Site factory | Validated site specification, template-rendered files, provisioning plan, ZIP download, approved draft PR | Templates require platform review; no live-copy creation, DNS change or publishing |
+| Content governance | Configured-page browser checks, sampled links, SEO/basic accessibility, AEM inheritance bridge results | Bounded checks, not complete WCAG certification or an all-page crawl |
+| Reporting & docs | Persisted-history briefs, downloadable Markdown, approval-gated docs PRs | Does not publish MkDocs or send Teams/email notifications |
+
+The UI includes mission control, agent fleet, all specialist run views, site intelligence, review inbox, reports, integration readiness and connection checks. Motion can be paused and respects reduced-motion preferences.
+
+## Try the end-to-end local flow
+
+1. Start a **Team mission** with the **Failures / findings** demo scenario. The orchestrator runs Release, Incident, then Reporting. Inspect the three persisted handoffs and source evidence.
+2. Open **Approvals** and accept the release dossier. This records a review; it does not authorize an external action.
+3. Run **Site factory**, inspect the six generated files, and download the ZIP.
+4. Select **Prepare draft PR proposal**, review the exact file contents, then approve and **Simulate PR creation**. Fixture mode never contacts GitHub.
+5. Refresh the browser or restart the application. Runs, files, reports and decisions remain stored.
+6. Open **Integrations** to see the configuration and connection-check experience.
+
+## Configure your platform
+
+Start with [the setup guide](docs/SETUP.md). Tenant configuration belongs in ignored files and environment variables, not application code:
+
+- `.env`: runtime mode, database, model selection and secret values/references.
+- `config/local.json`: endpoints, environment mappings, OIDC grants, schedules and PR targets.
+- `config/registry.local.json`: real site IDs, URLs, page scope and revision headers.
+- A reviewed site template directory, if you enable live Site Factory proposals.
+
+Use a **separate database** when switching from fixture to live integrations. Configuration is read at startup. Restart every API/worker instance after changing it.
+
+```bash
+python scripts/doctor.py
+```
+
+The doctor validates configuration and reports missing variable names without printing secret values. The UI's **Check connection** performs a bounded read probe. A reachable endpoint is not proof that an entire workflow is valid.
+
+Optional narrative providers are Amazon Bedrock Converse and an OpenAI-compatible Chat Completions gateway. `fixture` remains a deterministic text provider and can summarize real evidence without sending it to a model. Models do not select tools, alter deterministic verification assessments, or execute changes.
+
+## AWS hosting
+
+[infra/aws](infra/aws/README.md) contains Terraform for ECS/Fargate API and worker services, an HTTPS load balancer, task roles, secret injection and logs. It uses your existing VPC/subnets, PostgreSQL database, ECR image, certificate, DNS, and Secrets Manager entries. It is **not deployed** by CI.
+
+This release uses the tested PostgreSQL-backed workflow queue. Step Functions, SQS, S3 evidence offload and EventBridge are future migration work, described in [AWS transition](docs/AWS_TRANSITION.md). Do not run a second workflow owner against the same runs.
 
 ## Checks
 
 ```bash
 python -m pytest
-node --check web/assets/app.js
 python -m compileall -q backend scripts
+node --check web/assets/app.js
+python -m pip check
 ```
 
-The PostgreSQL smoke test is opt-in via `AAAEM_TEST_POSTGRES_URL`; it requires a dedicated disposable database named `aaaem_test` and resets its tables. CI configures that database. See [validation](docs/VALIDATION.md) for the checks actually run and remaining limits.
+The PostgreSQL integration test requires `AAAEM_TEST_POSTGRES_URL` pointing to a disposable database named `aaaem_test`. Browser tests require Chromium:
 
-## API and code map
+```bash
+python -m playwright install --with-deps chromium
+AAAEM_BROWSER_TESTS=1 python -m pytest tests/test_browser.py
+```
 
-- `GET /api/bootstrap` — initial registry, role catalog, records and local CSRF token.
-- `GET /api/workspace` — latest 100 runs/reviews/reports and recent events.
-- `POST /api/runs` — validated input plus `Idempotency-Key` and `X-AAAEM-CSRF` headers.
-- `GET /api/runs/{id}` — timeline, result and evidence ledger.
-- `POST /api/runs/{id}/cancel` or `/retry` — governed local lifecycle controls.
-- `POST /api/approvals/{id}/decision` — exact digest plus approved/declined draft decision.
-- `GET /api/reports/{id}?download=true` — stored Markdown artifact.
-- `GET /api/audit` — recent local audit records.
-- `GET /api/openapi.json` — machine-readable API schema.
+GitHub Actions runs application tests, PostgreSQL, the connected Chromium UI flow, Terraform validation and container checks. See [validation](docs/VALIDATION.md) for the actual results and unverified boundaries.
 
-`web/` owns the UI. `backend/aaaem/` owns contracts, persistence, tool policy, model providers, API and workers. `agents/` owns the seven-role catalog and Phase 1 instructions. `tests/` exercises behavior at API and workflow boundaries.
+## Project map
 
-## Hosting boundary
+`web/` contains the UI; `backend/aaaem/` contains the API, persistence, policies, adapters and runtime; `agents/` contains role instructions; `config/` contains examples and JSON schemas; `templates/` contains illustrative Site Factory templates; `tests/` contains behavior tests; `infra/aws/` contains the hosting starter.
 
-This milestone is for a trusted local operator. CSRF and host checks are not enterprise authentication. The application refuses `AAAEM_MODE=production`. Keep the local bind address and Docker loopback port binding; do not expose it publicly. Enterprise SSO/RBAC, real adapters, webhook verification, cloud workflow dispatch, and deployment verification are the next milestones. The repository includes validation CI only; it does not deploy the app or create AWS infrastructure.
+- [Setup and endpoint checklist](docs/SETUP.md)
+- [Integration contracts](docs/INTEGRATION_CONTRACTS.md)
+- [Implementation status and remaining work](docs/IMPLEMENTATION_STATUS.md)
+- [AWS deployment starter](infra/aws/README.md)
+- [Reference architecture](docs/SOLUTION_DESIGN.md)

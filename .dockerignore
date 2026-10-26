@@ -6,3 +6,10 @@ __pycache__
 .pytest_cache
 tests
 node_modules
+config/local.json
+config/*.local.json
+config/private
+test-results
+infra
+*.pem
+*.key

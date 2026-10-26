@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "files": {
+    "dispatcher/src/conf.d/available_vhosts/${slug}.vhost": "# EXAMPLE TEMPLATE: replace with your reviewed platform vhost before live use.\n<VirtualHost *:80>\n  ServerName ${domain}\n  DocumentRoot /mnt/var/www/html\n  # Add your platform includes, rewrites and security headers here.\n</VirtualHost>\n",
+    "dispatcher/src/conf.dispatcher.d/available_farms/${slug}.farm": "# EXAMPLE TEMPLATE: complete renderer, cache and filter includes through platform review.\n/${slug} {\n  /virtualhosts { \"${domain}\" }\n  /filter { /0001 { /type \"deny\" /glob \"*\" } }\n}\n",
+    "conf/sites/${slug}/repoinit.txt": "# Proposed content root. Review service-user permissions separately.\ncreate path /content/${slug} (sling:Folder)\n",
+    "conf/sites/${slug}/i18n/${locale}.json": "{\"locale\":\"${locale}\",\"brand\":\"${brand}\",\"translations\":{}}\n",
+    "conf/sites/${slug}/site.json": "{\"slug\":\"${slug}\",\"market\":\"${market}\",\"locale\":\"${locale}\",\"theme\":\"${theme}\",\"domain\":\"${domain}\",\"environment\":\"${environment}\"}\n"
+  }
+}

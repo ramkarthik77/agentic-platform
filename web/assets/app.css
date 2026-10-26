@@ -14,3 +14,20 @@ dialog{background:#141b1f;color:var(--text);border:1px solid #3b484d;border-radi
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 
 .site-tile.unknown{background:#242d2e;border-color:#354041}.connection-error{color:var(--red)}.run-log{display:grid;gap:12px}.evidence-item{border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:10px}.evidence-item summary{cursor:pointer;font-size:11px}.evidence-item pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.8}.run-status{font-size:10px;color:var(--muted)}.field-row{display:grid;gap:8px;margin:18px 0}.field-row label{font-size:11px;color:var(--muted)}.field-row select{width:100%;background:#172020;color:var(--text);padding:12px;border:1px solid var(--line);border-radius:8px}.run-empty{padding:42px 24px;text-align:center}.run-empty h3{margin:12px 0}.run-empty p{font-size:12px;color:var(--muted);line-height:1.8;max-width:440px;margin:0 auto 22px}.status-banner{padding:13px 18px;border:1px solid var(--line);border-radius:10px;margin-bottom:20px;font-size:11px;color:var(--muted)}.download-link{text-decoration:none}.summary-text{white-space:pre-wrap;overflow-wrap:anywhere}.small-btn:disabled,.btn:disabled{opacity:.45;cursor:not-allowed}.agent-node.planned{opacity:.48}.approval-buttons{flex-wrap:wrap}details>pre{max-height:300px;overflow:auto}.fleet-card:first-child .agent-art{flex-shrink:0}.load-state{padding:70px 30px;text-align:center}.error-inline{color:var(--red);font-size:12px;margin-top:10px}
+
+/* Configuration, handoffs and exact-file proposals share the approved visual language. */
+#navigation{overflow-y:auto;min-height:0;scrollbar-width:thin}
+.setup-summary{padding:24px;margin:0 0 24px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;color:var(--muted)}
+.setup-summary h2{width:100%;color:var(--text)}
+.setup-detail{min-height:42px;margin-top:14px}
+.integration-card details{font-size:12px;margin-top:14px;overflow-wrap:anywhere}
+.integration-card ul{padding-left:18px;line-height:1.9}
+.integration-card footer{flex-wrap:wrap;margin-top:16px}
+.handoff-row{display:flex;align-items:center;gap:14px;padding:18px 0;border-bottom:1px solid var(--line)}
+.handoff-row>div{flex:1;min-width:0}.handoff-row p{font-size:12px;color:var(--muted);margin-top:5px}
+.change-card{text-align:left}.change-card h3{font-size:17px;margin-top:18px}
+#factory-fields{border:1px solid var(--line);border-radius:14px;padding:18px;margin:18px 0}
+#factory-fields legend{color:var(--muted);padding:0 8px;font-size:12px}
+[hidden]{display:none!important}#change-reason{width:100%;margin-top:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:650px){.handoff-row{flex-wrap:wrap}.setup-summary{padding:18px}.approval-buttons{flex-wrap:wrap}}
