@@ -205,6 +205,7 @@ class Platform:
             revision = release.get('revision')
             assessment = self.assess_checks(request, release, checks, scope)
             details = {"site_ids": scope, "site_results": checks.get('sites', []), "impact_reason": impacted["reason"],
+                       "execution_id": release.get('execution_id'),
                        "coverage_uncertain": impacted["coverage_uncertain"], "telemetry": telemetry,
                        "revision_verified": checks.get('revision_verified', self.settings.integration_mode == 'fixture'),
                        "coverage_note": checks.get('note', 'Bounded checks on configured pages. Not a full-site audit.')}
@@ -215,6 +216,7 @@ class Platform:
             revision = release.get('revision')
             assessment = "unconfirmed"
             details = {"root_cause": "unconfirmed", "telemetry": telemetry,
+                       "execution_id": release.get('execution_id'),
                        "patterns": logs.get('patterns', []), "correlation_is_causation": False}
         elif run['kind'] == 'security':
             sources = [tool(name) for name in ['snyk.findings', 'sonar.findings', 'github.review']]
@@ -329,7 +331,14 @@ class Platform:
             next_kind = next((k for k in plan if k not in [c['kind'] for c in children]), None)
             if next_kind:
                 owner = conn.execute(select(db.owners.c.actor).where(db.owners.c.run_id == run['id'])).scalar_one_or_none() or 'local-operator'
-                data = RunRequest.model_validate(run['request'] | {'kind': next_kind}).model_dump()
+                handoff = run['request'] | {'kind': next_kind}
+                # Freeze the discovered execution across specialists even if another deploy starts.
+                release_child = next((c for c in children if c['kind'] == 'release' and c.get('result')), None)
+                if next_kind == 'incident' and release_child:
+                    execution_id = release_child['result']['details'].get('execution_id')
+                    if execution_id:
+                        handoff['execution_id'] = execution_id
+                data = RunRequest.model_validate(handoff).model_dump()
                 child_id, position = db.uid('RUN'), len(children)
                 conn.execute(db.runs.insert().values(id=child_id, key=f'mission:{run["id"]}:{position}', request_hash=db.digest(data), request=data,
                     kind=next_kind, status='queued', stage='Assigned by orchestrator', created_at=db.now(), updated_at=db.now(), attempts=0))

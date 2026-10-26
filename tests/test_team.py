@@ -60,6 +60,7 @@ def test_release_mission_handoffs_depend_on_evidence(client):
     assert all(c['status'] in {'awaiting_review','draft_ready'} for c in children)
     assert detail['run']['result']['assessment']=='needs_attention'
     assert len({h['child_id'] for h in handoffs})==3
+    assert children[1]['request']['execution_id']==children[0]['result']['details']['execution_id']=='1042'
 
 def test_healthy_release_mission_skips_unnecessary_investigation(client):
     detail=run(client,'core')
@@ -104,6 +105,18 @@ def test_stale_or_expired_change_cannot_execute(client):
     client.post(base+'/decision',headers=headers(client),json={'decision':'approved','digest':proposal['digest']})
     with client.app.state.engine.begin() as conn:conn.execute(update(db.changes).values(expires_at=db.now(-1)))
     assert client.post(base+'/execute',headers=headers(client),json={}).status_code==409
+
+def test_hosted_pr_requires_a_different_reviewer(client):
+    detail=run(client,'reporting');rid=detail['run']['id']
+    proposal=client.post('/api/runs/'+rid+'/propose-pr',headers=headers(client),json={}).json()
+    changes=client.app.state.changes
+    changes.settings=replace(changes.settings,mode='production')
+    path='/api/changes/'+proposal['id']+'/decision'
+    body={'decision':'approved','digest':proposal['digest']}
+    assert client.post(path,headers=headers(client),json=body).status_code==409
+    reviewer=Principal('different-reviewer','Reviewer',({'roles':['reviewer'],'environments':['stage']},),'reviewer-csrf')
+    client.app.state.auth.principal=lambda request:reviewer
+    assert client.post(path,headers={'X-AAAEM-CSRF':reviewer.csrf},json=body).status_code==200
 
 def test_missing_live_connections_never_fall_back_to_fixtures(settings):
     with TestClient(create_app(replace(settings,integration_mode='live'))) as c:

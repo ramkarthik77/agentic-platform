@@ -2,7 +2,7 @@
 
 ## Version 0.2 local checks
 
-- 70 automated tests passed; two integration tests were skipped locally because PostgreSQL and the browser-test runtime were not enabled. One upstream Starlette HTTPX test-client deprecation warning remains.
+- 71 automated tests passed; two integration tests were skipped locally because PostgreSQL and the browser-test runtime were not enabled. One upstream Starlette HTTPX test-client deprecation warning remains.
 - All seven workflow types, conditional persisted handoffs, restart recovery, cancellation, idempotent schedules and signed intake were exercised.
 - Tests cover role/environment isolation, exact-file PR approval/expiry, OIDC signature/issuer/audience/nonce/authorized-party validation, PKCE callback consumption, session creation and logout.
 - HTTP MockTransport tests exercise native adapters and complete live-mode release handling without real credentials. Missing served-revision proof cannot yield `verified`. Wrong environment/fixture bridge responses, redirects, response limits and truncated pagination are rejected or marked incomplete.
@@ -12,7 +12,7 @@
 
 ## CI verification
 
-The version 0.2 workflow is configured to run PostgreSQL 16 integration, a real Chromium UI flow, Terraform validation, application container startup and verifier-container Chromium launch. The pull request's checks are the authoritative result; configured checks are not claimed as passed until their run completes.
+The initial version 0.2 CI run passed Terraform validation, application container build/startup, verifier container build and Chromium launch. The runner-side browser dependency installation stalled; the follow-up workflow runs the connected UI flow inside that verified browser container. The pull request checks are the authoritative final result; configured checks are not claimed as passed until their run completes.
 
 The UI test launches a mission, inspects specialist handoffs, accepts a dossier, creates/downloads a site bundle, separately approves/simulates its PR, checks persistence after refresh, probes an integration, and checks a mobile layout. Screenshots are retained as the `browser-evidence` CI artifact.
 
