@@ -83,11 +83,11 @@ node --check web/assets/app.js
 python -m pip check
 ```
 
-The PostgreSQL integration test requires `AABTS_TEST_POSTGRES_URL` pointing to a disposable database named `aaaem_test`. Browser tests require Chromium:
+The PostgreSQL integration test requires `AAAEM_TEST_POSTGRES_URL` pointing to a disposable database named `aaaem_test`. Browser tests require Chromium:
 
 ```bash
 python -m playwright install --with-deps chromium
-AABTS_BROWSER_TESTS=1 python -m pytest tests/test_browser.py
+AAAEM_BROWSER_TESTS=1 python -m pytest tests/test_browser.py
 ```
 
 GitHub Actions runs application tests, PostgreSQL, the connected Chromium UI flow, Terraform validation and container checks. See [validation](docs/VALIDATION.md) for the actual results and unverified boundaries.
