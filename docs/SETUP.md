@@ -1,4 +1,4 @@
-# Configure AAAEM Platform
+# Configure AABTS Platform
 
 The repository runs end to end locally with synthetic integrations. To use your systems, configure the files below and validate a stage workflow before enabling recurring work. All paths in this guide are relative to the repository root; run the scripts there.
 

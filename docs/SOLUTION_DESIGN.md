@@ -1,18 +1,18 @@
-# AAAEM Platform Agentic System — Solution Design
+# AABTS Platform Agentic System — Solution Design
 
 **Status:** Long-term reference architecture. Version 0.2 implements seven bounded workflows and configurable integrations using a PostgreSQL-backed runtime. Step Functions/SQS and several advanced capabilities below remain future work. See [implementation status](IMPLEMENTATION_STATUS.md) and [AWS transition](AWS_TRANSITION.md) for the actual delivered scope.
 **Date:** October 23, 2026  
-**Scope:** A new, standalone agentic system for the AAAEM Platform, with seven agent roles supporting its 100+ AEM sites.
+**Scope:** A new, standalone agentic system for the AABTS Platform, with seven agent roles supporting its 100+ AEM sites.
 
 ## 1. Architecture decision
 
-Build a **new, standalone AAAEM Platform Agentic System on AWS**, with its own repository, backend, agent runtime, workflows, integrations, approvals and deployment lifecycle. A versioned **aaaem-platform** agent package holds the seven roles and their skills.
+Build a **new, standalone AABTS Platform Agentic System on AWS**, with its own repository, backend, agent runtime, workflows, integrations, approvals and deployment lifecycle. A versioned **aaaem-platform** agent package holds the seven roles and their skills.
 
 The seven roles share case history, a site registry, evidence, and approvals. They do not each need a separate application, database, or integration stack.
 
-The system owns its case history, site registry, evidence, permissions and approval service. Microsoft Teams provides a request and notification channel; a dedicated AAAEM dashboard can be added as its own client. Enterprise credentials stay behind the tool gateway, and the model provider is selected through an explicit adapter.
+The system owns its case history, site registry, evidence, permissions and approval service. Microsoft Teams provides a request and notification channel; a dedicated AABTS dashboard can be added as its own client. Enterprise credentials stay behind the tool gateway, and the model provider is selected through an explicit adapter.
 
-**Product boundary:** This is an independent product for AAAEM operations. AEM, Cloud Manager, New Relic, Splunk, GitHub, Snyk, Sonar and MkDocs are integration targets. Other applications, their repositories and their runtime state are outside this product's dependency boundary.
+**Product boundary:** This is an independent product for AABTS operations. AEM, Cloud Manager, New Relic, Splunk, GitHub, Snyk, Sonar and MkDocs are integration targets. Other applications, their repositories and their runtime state are outside this product's dependency boundary.
 
 Three changes to the initial build order:
 
@@ -27,7 +27,7 @@ The first implementation establishes the new codebase, event contracts, policy s
 ```mermaid
 flowchart TB
     Events["Monitoring alerts, pipeline events and schedules"] --> Intake["Verified intake and durable queue"]
-    UI["AAAEM dashboard and Teams"] --> Runtime["Workflow service and Ops orchestrator"]
+    UI["AABTS dashboard and Teams"] --> Runtime["Workflow service and Ops orchestrator"]
     Intake --> Runtime
     Runtime <--> State[("Cases, site registry and evidence")]
     Runtime --> Observe["Incident, Release and Reporting"]
@@ -46,9 +46,9 @@ The diagram groups specialists for readability; all six have distinct contracts 
 
 | Layer | Responsibility | Recommended implementation direction |
 | --- | --- | --- |
-| User workspace | Cases, tasks, approvals, evidence and site health | Dedicated AAAEM dashboard and Teams adapter connected to this system's backend |
+| User workspace | Cases, tasks, approvals, evidence and site health | Dedicated AABTS dashboard and Teams adapter connected to this system's backend |
 | Intake | Authenticate source, normalize event, deduplicate and acknowledge after durable storage | HTTPS receiver, enterprise scheduler and durable queue |
-| Workflow service | Routing, retries, checkpoints, approval waits, deadlines and cancellation | Step Functions Standard for durable execution; AAAEM workflow adapters, PostgreSQL case records and SQS intake |
+| Workflow service | Routing, retries, checkpoints, approval waits, deadlines and cancellation | Step Functions Standard for durable execution; AABTS workflow adapters, PostgreSQL case records and SQS intake |
 | Agent execution | Bounded specialist reasoning with structured inputs/outputs | New agent execution service with an approved model-provider adapter |
 | Developer experience | Interactive investigation and engineering assistance | Versioned aaaem-platform plugin; Claude Code adapter where organization-approved |
 | Tool gateway | Enforce actor, role, site, environment and operation permissions | Typed adapters exposed through MCP and/or an internal API |
@@ -66,11 +66,11 @@ No new vector database is required for the pilot. Start with the site registry, 
 
 **Hosting decision: use the enterprise AWS environment.** The user confirmed AWS availability. The proposed baseline is **Amazon ECS with AWS Fargate**, with **AWS Step Functions Standard** for durable workflow coordination. The particular account, region, network and service entitlements still need implementation-time validation.
 
-Teams and the dedicated AAAEM dashboard are clients of this system's API; ECS tasks run the agent code; its own Git repository stores the reviewed definitions; an approved model endpoint supplies inference.
+Teams and the dedicated AABTS dashboard are clients of this system's API; ECS tasks run the agent code; its own Git repository stores the reviewed definitions; an approved model endpoint supplies inference.
 
 | Component | Proposed AWS location | Execution pattern |
 | --- | --- | --- |
-| AAAEM backend, Ops dispatcher and approval API | ECS service on Fargate | Continuously available service; replicas sized for availability |
+| AABTS backend, Ops dispatcher and approval API | ECS service on Fargate | Continuously available service; replicas sized for availability |
 | Six specialist roles and orchestration reasoning | ECS Fargate tasks using reviewed images | Bounded execution when workflow steps need reasoning |
 | Workflow sequencing, retry and approval waits | Step Functions Standard | Persisted state transitions; human approval can release agent compute |
 | Browser tests, crawls and builds | Separate Fargate tasks or approved CI runners | Isolated jobs with resource budgets |
@@ -86,9 +86,9 @@ Teams and the dedicated AAAEM dashboard are clients of this system's API; ECS ta
 
 Fargate supplies container execution without managing the underlying EC2 servers. ECS supports services and finite standalone tasks; Step Functions can start ECS tasks and wait for completion. [S11][S12][S13]
 
-**Workflow ownership:** Step Functions owns durable sequencing, retries and callback waits. The AAAEM backend owns the user-facing case model, proposal/approval records, evidence links and policy. Persist the workflow execution reference and reconcile case status from workflow events. Keep one retry/state machine for each workflow step.
+**Workflow ownership:** Step Functions owns durable sequencing, retries and callback waits. The AABTS backend owns the user-facing case model, proposal/approval records, evidence links and policy. Persist the workflow execution reference and reconcile case status from workflow events. Keep one retry/state machine for each workflow step.
 
-Use Standard workflows for job completion and approval callbacks; Express workflows do not support the required sync/callback patterns. Keep approval task tokens on the trusted backend. A Teams or AAAEM dashboard approval submits a proposal ID; the backend verifies the person, current scope, proposal digest and expiry before resuming the workflow. No token is put in a model prompt, browser link or Teams card. [S14][S15]
+Use Standard workflows for job completion and approval callbacks; Express workflows do not support the required sync/callback patterns. Keep approval task tokens on the trusted backend. A Teams or AABTS dashboard approval submits a proposal ID; the backend verifies the person, current scope, proposal digest and expiry before resuming the workflow. No token is put in a model prompt, browser link or Teams card. [S14][S15]
 
 SQS does not by itself start arbitrary Fargate tasks. An authorized dispatcher consumes queued events, creates or correlates a case, and starts the correct Step Functions execution. Store an event/outbox record and deduplication key so restarts and redelivery cannot create duplicate actions. Configure retry ownership, queue visibility and dead-letter handling at the appropriate boundary.
 
@@ -99,7 +99,7 @@ Start with shared, versioned container images and distinct role/task permissions
 ```mermaid
 flowchart TB
     External["Cloud Manager and monitoring events"] --> Intake["Verified intake API"]
-    UI["AAAEM dashboard and Teams"] --> Intake
+    UI["AABTS dashboard and Teams"] --> Intake
     Schedule["EventBridge Scheduler"] --> Queue[("SQS")]
     Intake --> Queue
     Queue --> Dispatcher["Ops dispatcher"]
@@ -181,7 +181,7 @@ Build one shared Playwright verification service within this system for Release 
 
 **A pre-production gate must run before promotion.** A post-production webhook can detect a bad release, but cannot retroactively block it. Use Cloud Manager Custom UI Testing where the pipeline type supports it; externally executed tests need an explicit supported approval/gate integration if they must block promotion.
 
-Adobe documents pipeline and step events, including waiting states. Some actions do not emit start events, so API reconciliation is necessary. Adobe also documents Docker-based UI testing and a Playwright sample. These are integration foundations, not proof that they are already configured for AAAEM. [S1][S2]
+Adobe documents pipeline and step events, including waiting states. Some actions do not emit start events, so API reconciliation is necessary. Adobe also documents Docker-based UI testing and a Playwright sample. These are integration foundations, not proof that they are already configured for AABTS. [S1][S2]
 
 A release is recorded as **verified**, **failed**, **inconclusive**, or **not checked**. A successful deployment alone is not a passed business verification.
 
@@ -318,9 +318,9 @@ Cover every registered site on the nightly schedule with bounded incremental/smo
 
 Use a bounded crawler and browser runner with URL allowlists, redirect validation, private-network restrictions and throttling. Do not submit real customer forms or perform authenticated state changes during production audits. Forms and write journeys use approved test environments and data.
 
-## 12. AAAEM user experience
+## 12. AABTS user experience
 
-Provide a Teams adapter and an optional dedicated **AAAEM dashboard** as clients of this system's API. The backend owns authentication enforcement, cases, actions and approvals. The dashboard, when built, has these views:
+Provide a Teams adapter and an optional dedicated **AABTS dashboard** as clients of this system's API. The backend owns authentication enforcement, cases, actions and approvals. The dashboard, when built, has these views:
 
 | View | What the user sees |
 | --- | --- |
@@ -350,7 +350,7 @@ The dedicated repository is [ramkarthik77/agentic-platform](https://github.com/r
 
 | Path | Purpose |
 | --- | --- |
-| `apps/dashboard/` | Optional dedicated AAAEM dashboard |
+| `apps/dashboard/` | Optional dedicated AABTS dashboard |
 | `adapters/teams/` | Teams requests, status and approval interface |
 | `plugins/aaaem-platform/.claude-plugin/plugin.json` | Claude plugin metadata |
 | `plugins/aaaem-platform/agents/` | Seven role definitions |
@@ -402,7 +402,7 @@ Track incident investigation time, useful RCA evidence rate, missed incidents, r
 
 Build one complete, read-only path:
 
-**Cloud Manager deployment event → persisted release case → impacted-site selection → Playwright checks → incident evidence if a check fails → release summary available through the AAAEM API and evidence store.**
+**Cloud Manager deployment event → persisted release case → impacted-site selection → Playwright checks → incident evidence if a check fails → release summary available through the AABTS API and evidence store.**
 
 Include the thin orchestrator and Reporting output in this slice. Add one monitoring source first, then the other. Add Teams and the dedicated dashboard as clients of the new API; the core workflow can be demonstrated before either client is complete. Enable automatic publishing only after destination policies and registrations are ready.
 
@@ -410,7 +410,7 @@ This proves integration, durability, evidence, permissions and user experience b
 
 ## Sources
 
-Official documentation reviewed on October 23, 2026. Recommendations and proposed policies above are architecture decisions; source links establish integration capabilities and platform constraints, not existing AAAEM implementation status.
+Official documentation reviewed on October 23, 2026. Recommendations and proposed policies above are architecture decisions; source links establish integration capabilities and platform constraints, not existing AABTS implementation status.
 
 - **[S1]** [Adobe Cloud Manager — Receiving Events](https://developer.adobe.com/experience-cloud/cloud-manager/guides/api-usage/receiving-events)
 - **[S2]** [Adobe AEM as a Cloud Service — UI Testing](https://experienceleague.adobe.com/en/docs/experience-manager-cloud-service/content/implementing/using-cloud-manager/test-results/functional-testing/ui-testing)

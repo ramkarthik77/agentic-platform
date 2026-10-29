@@ -28,9 +28,9 @@ The main image runs as UID 10001. The API service disables its embedded worker. 
 The `secret_arns` map contains **ARN references**, never secret values:
 
 - `DATABASE_URL`: full SQLAlchemy PostgreSQL connection URL with your TLS settings.
-- `AAAEM_WORKSPACE_JSON`: contents of your reviewed workspace JSON.
-- `AAAEM_REGISTRY_JSON`: contents of the real registry JSON.
-- `AAAEM_OIDC_CLIENT_SECRET`, plus each variable referenced by connection configuration.
+- `AABTS_WORKSPACE_JSON`: contents of your reviewed workspace JSON.
+- `AABTS_REGISTRY_JSON`: contents of the real registry JSON.
+- `AABTS_OIDC_CLIENT_SECRET`, plus each variable referenced by connection configuration.
 
 ECS injects these as environment variables. `prepare_config()` materializes configuration/registry into mode-0600 files in a mode-0700 temporary directory and removes the two large JSON variables from the application environment. Credentials remain runtime environment values and are never exposed by the setup endpoint. Restart tasks after changing secrets/configuration; existing containers do not automatically refresh injected values. If secrets use customer-managed KMS keys, supply `secret_kms_key_arns` and ensure the key policy permits the execution role.
 

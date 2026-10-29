@@ -62,7 +62,7 @@ const short=id=>id.slice(0,12);
 const date=v=>new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 const color=s=>['failed','declined','blocked','error','needs_attention'].includes(s)?'red':['queued','running','pending','approved','unknown','not_configured','configured','waiting_children','awaiting_review','inconclusive','not_checked'].includes(s)?'amber':['verified','healthy','succeeded','reachable','no_findings'].includes(s)?'green':'';
 const labels={core:'Team mission',release:'Release verification',incident:'Incident investigation',security:'Security & quality',factory:'Site factory',governance:'Content governance',reporting:'Platform brief'};
-const footer=()=>'<footer class="page-footer"><span>'+icon('lock')+' AAAEM PLATFORM · STANDALONE SYSTEM</span><span>'+esc(state.mode.toUpperCase()+' · '+state.integrationMode.toUpperCase()+' DATA')+'</span></footer>';
+const footer=()=>'<footer class="page-footer"><span>'+icon('lock')+' AABTS PLATFORM · STANDALONE SYSTEM</span><span>'+esc(state.mode.toUpperCase()+' · '+state.integrationMode.toUpperCase()+' DATA')+'</span></footer>';
 function head(title,desc,action){return '<div class="heading"><div><div class="eyebrow"><span class="dot"></span>Intelligence in operation</div><h1>'+title+'</h1><p class="subtitle">'+desc+'</p></div><div class="actions">'+(action||btn(icon('play')+'Start an agent run','launch','primary'))+'</div></div>';}
 function empty(title,desc,action='launch'){return '<div class="panel run-empty">'+icon('orbit')+'<h3>'+title+'</h3><p>'+desc+'</p>'+btn('Start an agent run '+icon('arrow'),action,'primary')+'</div>';}
 function toast(title,detail=''){const el=document.createElement('div');el.className='toast';el.innerHTML=icon('checkcircle')+'<div>'+esc(title)+(detail?'<small>'+esc(detail)+'</small>':'')+'</div>';document.getElementById('toasts').append(el);setTimeout(()=>el.remove(),5000);}
@@ -154,7 +154,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   case 'approve-change':case 'decline-change':{const change=state.changes.find(c=>c.id===id);await api('/api/changes/'+id+'/decision',{digest:change.digest,decision:action==='approve-change'?'approved':'declined',reason:document.getElementById('change-reason')?.value||''});await sync();showChange(id);break;}
   case 'execute-change':await api('/api/changes/'+id+'/execute',{});await sync();showChange(id);break;
   case 'logout':await api('/api/logout',{});location.reload();break;
-  case 'about':openModal(modalHeader('AAAEM PLATFORM','Your operational workspace.','Seven roles · one shared workspace')+'<div class="modal-body"><p class="subtitle">Bounded specialist workflows, persistent handoffs, evidence, reports, configuration checks, and governed draft PRs.</p><div class="callout">Inputs: '+esc(state.integrationMode)+'. Summary provider: '+esc(state.provider)+'. Identity: '+esc(state.mode==='local'?'local operator':'enterprise OIDC')+'.</div><a class="btn" href="/guide" target="_blank" rel="noopener">Setup guide</a>'+(state.mode==='production'?btn('Sign out','logout'):'')+'</div>');break;
+  case 'about':openModal(modalHeader('AABTS PLATFORM','Your operational workspace.','Seven roles · one shared workspace')+'<div class="modal-body"><p class="subtitle">Bounded specialist workflows, persistent handoffs, evidence, reports, configuration checks, and governed draft PRs.</p><div class="callout">Inputs: '+esc(state.integrationMode)+'. Summary provider: '+esc(state.provider)+'. Identity: '+esc(state.mode==='local'?'local operator':'enterprise OIDC')+'.</div><a class="btn" href="/guide" target="_blank" rel="noopener">Setup guide</a>'+(state.mode==='production'?btn('Sign out','logout'):'')+'</div>');break;
  }
  }catch(error){const inline=document.getElementById('run-error');if(inline)inline.textContent=error.message;toast('Action could not finish',error.message);}finally{if(b.isConnected)b.disabled=false;}
 });
@@ -245,7 +245,7 @@ function startNetwork(){
   for(let lon=0;lon<24;lon++){let prev=null;for(let la=-20;la<=20;la++){const pt=project(la/20*Math.PI/2,lon/24*Math.PI*2);if(prev&&pt[2]>-r*.2){ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(pt[0],pt[1]);ctx.strokeStyle='rgba('+rgb+','+(.06+Math.max(0,pt[2]/r)*.15)+')';ctx.lineWidth=.5;ctx.stroke();}prev=pt;}}
   for(let k=0;k<3;k++){ctx.save();ctx.translate(cx,cy);ctx.rotate(.35+k*1.03+t*.025*(k%2===0?1:-1));ctx.beginPath();ctx.ellipse(0,0,r*1.2,r*.34,0,0,Math.PI*2);ctx.strokeStyle='rgba('+rgb+','+(k===0?.4:.18)+')';ctx.lineWidth=.8;ctx.stroke();const a=t*.22+k*2;ctx.beginPath();ctx.arc(r*1.2*Math.cos(a),r*.34*Math.sin(a),1.6,0,Math.PI*2);ctx.fillStyle='rgb('+rgb+')';ctx.fill();ctx.restore();}
   const sheen=ctx.createRadialGradient(cx-r*.35,cy-r*.5,0,cx-r*.35,cy-r*.5,r*.8);sheen.addColorStop(0,'rgba('+rgb+',.12)');sheen.addColorStop(1,'rgba('+rgb+',0)');ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=sheen;ctx.fill();
-  ctx.font='7px Consolas,monospace';ctx.fillStyle='rgba('+rgb+',.5)';ctx.textAlign='center';ctx.fillText('AAAEM // CORE',cx,cy-r-28);
+  ctx.font='7px Consolas,monospace';ctx.fillStyle='rgba('+rgb+',.5)';ctx.textAlign='center';ctx.fillText('AABTS // CORE',cx,cy-r-28);
  }
  frame=requestAnimationFrame(draw);
 }

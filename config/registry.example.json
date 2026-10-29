@@ -17,6 +17,6 @@
     "owner": "Platform team",
     "content_root": "/content/example/us/en",
     "inheritance_exceptions": [],
-    "revision_header": "X-AAAEM-Revision"
+    "revision_header": "X-AABTS-Revision"
   }
 ]
