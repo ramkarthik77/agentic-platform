@@ -1,0 +1,11 @@
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PLAYWRIGHT_BROWSERS_PATH=/opt/browsers
+WORKDIR /app
+COPY requirements.lock .
+RUN pip install --no-cache-dir -r requirements.lock && python -m playwright install --with-deps chromium && useradd --uid 10001 --create-home aaaem
+COPY backend ./backend
+COPY scripts ./scripts
+RUN chown -R aaaem:aaaem /app /opt/browsers
+USER aaaem
+EXPOSE 9000
+CMD ["python", "scripts/serve_verifier.py", "--host", "0.0.0.0", "--port", "9000"]

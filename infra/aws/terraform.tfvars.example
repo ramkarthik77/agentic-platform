@@ -1,0 +1,25 @@
+# Copy to terraform.tfvars and replace every placeholder. Do not commit tenant values.
+region                       = "us-east-1"
+name                         = "aaaem-agentic"
+vpc_id                       = "<existing-vpc-id>"
+private_subnet_ids           = ["<private-subnet-az-a>", "<private-subnet-az-b>"]
+load_balancer_subnet_ids     = ["<alb-subnet-az-a>", "<alb-subnet-az-b>"]
+internal_load_balancer       = true
+allowed_client_cidrs         = ["<your-vpn-network-cidr>"]
+hostname                     = "agents.your-domain.example"
+certificate_arn              = "<validated-acm-certificate-arn>"
+image_uri                    = "<account>.dkr.ecr.us-east-1.amazonaws.com/aaaem-agentic@sha256:<image-digest>"
+database_security_group_id   = "<existing-rds-security-group-id>"
+secret_arns = {
+  DATABASE_URL            = "<secrets-manager-database-url-arn>"
+  AAAEM_WORKSPACE_JSON     = "<secrets-manager-workspace-config-json-arn>"
+  AAAEM_REGISTRY_JSON      = "<secrets-manager-site-registry-json-arn>"
+  AAAEM_OIDC_CLIENT_SECRET = "<secrets-manager-oidc-secret-arn>"
+  # Add ADOBE_CLIENT_ID, ADOBE_CLIENT_SECRET, ADOBE_ORG_ID, NEW_RELIC_API_KEY,
+  # SPLUNK_TOKEN, SNYK_TOKEN, SONAR_TOKEN, AAAEM_GITHUB_TOKEN, AEM_BRIDGE_TOKEN,
+  # AAAEM_VERIFIER_TOKEN, AAAEM_INTAKE_SECRET as needed. Values are ARNs only.
+}
+model_provider = "fixture" # deterministic summaries with real live-source evidence
+# model_provider = "bedrock"
+# model_id = "<approved-model-or-profile-id>"
+# bedrock_resource_arns = ["<approved-model-arn>", "<profile-arn-if-used>"]

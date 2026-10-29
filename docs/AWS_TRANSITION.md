@@ -1,48 +1,27 @@
-# AWS implementation sequence
+# AWS runtime and later migration
 
-The application is a standalone AAAEM system with its own codebase, runtime and deployment lifecycle.
+## Current implementation — version 0.2
 
-## Current development runtime
+The application now has seven bounded roles, persisted specialist handoffs, live-source adapter configuration, OIDC sessions and scoped access, normalized signed intake, exact-file draft PR approvals, interval schedules and a separate browser verifier. The same database-backed workflow engine runs locally or as a dedicated worker process. SQLite is for local development; the hosted path requires PostgreSQL.
 
-FastAPI serves the approved web UI and API. A local worker claims persisted runs using compare-and-update ownership, bounded attempts, and expiring leases. Evidence, reports, reviews, and audit records are committed transactionally. SQLite is the default; a SQLAlchemy PostgreSQL path is included. Inputs use fixture adapters. Bedrock inference is optional.
+The Terraform starter in `infra/aws/` hosts API and worker services on ECS/Fargate with a configured existing PostgreSQL database, secret injection, HTTPS load balancing and logs. It does not deploy automatically, and it has not been applied to an AWS account. Existing network, database, image registry, certificate, DNS, tenant metadata bridge and verification endpoint must be supplied.
 
-The local worker is deliberately a development adapter. Do not run it in parallel with Step Functions as competing workflow owners.
+This is an explicit implementation change from the original target architecture: **PostgreSQL leases currently own workflow execution. Step Functions and SQS are not implemented.** Keeping one tested owner avoids two services retrying or advancing the same run independently.
 
-## Milestone 2 — enterprise identity and first live read adapter
+## Why keep this runtime for the first hosted pilot
 
-1. Use the dedicated [ramkarthik77/agentic-platform](https://github.com/ramkarthik77/agentic-platform) repository. Establish the AWS account/region, VPC and enterprise identity integration.
-2. Add OIDC session validation, role/group mapping, per-environment/site authorization and a real reviewer identity. Remove the local principal from the enterprise configuration.
-3. Implement Cloud Manager read access for allowlisted programs/pipelines, OAuth credential handling, bounded API calls and error handling. Keep live integration mode explicit and independently configurable from the model provider.
-4. Map the real site registry and dependency owners. Do not promote fixture site IDs or health values into production data.
-5. Test one non-production pipeline and validate execution/revision binding against native Cloud Manager records.
+Each workflow has a bounded set of read tools, a small number of persisted handoffs, and separate review/action records. Worker ownership is claimed transactionally and renewed before bounded steps/batches. Interrupted leases are recovered with a maximum attempt count; cancelled or superseded owners cannot commit late results. Reviews do not hold a worker open. PR execution uses a separate claim and deterministic branch identity to reconcile an unknown result.
 
-## Milestone 3 — AWS workflows and observability
+This is not a promise of unlimited scale or exactly-once remote effects. Load-test the actual site estate, quotas, database, provider latencies and concurrent workers. The code bounds active submissions and site batches, but it does not provide a distributed global provider rate limiter or a DLQ. External events are authenticated/deduplicated directly into persisted run records.
 
-1. Provision reviewed ECR, ECS/Fargate, RDS PostgreSQL, S3, Secrets Manager, IAM and log configuration. Pin deployment images by digest and establish controlled egress and backups.
-2. Replace the embedded local worker with a dispatcher/outbox and Step Functions Standard. Keep the case and review API contracts; persist workflow execution IDs and reconcile workflow state into application records.
-3. Authenticate and deduplicate provider webhooks before durable intake. Use SQS with defined visibility, retry ownership and dead-letter handling.
-4. Store evidence blobs in restricted S3 objects, retaining hashes, provenance, retention policy and metadata in RDS.
-5. Add New Relic and Splunk adapters with bounded queries, redaction and scope enforcement. Reuse one verification service for release and governance checks.
-6. Add real Playwright results with revision, environment, affected-site scope, selected journeys and retained artifacts. Never treat fixture pass values as execution evidence.
-7. Add EventBridge scheduling only after workflow idempotency, budgets, alerting and operational ownership are verified.
+## Future Step Functions/SQS migration
 
-## Milestone 4 — controlled action capabilities
+1. Add a transactional event outbox and a single dispatcher. Persist the remote workflow execution ARN alongside the run before enabling new ownership.
+2. Introduce Step Functions Standard for durable sequencing, retry ownership and approval callbacks, with versioned input contracts and idempotent activity handlers.
+3. Use SQS for transport, visibility and DLQ/replay operations. Define which component owns each retry; do not let the old worker claim externally owned runs.
+4. Move large evidence artifacts to restricted S3 storage, retaining content hashes, metadata and access decisions in PostgreSQL.
+5. Use EventBridge for precise calendar/timezone schedules. Preserve the same intake authorization and idempotency contracts.
+6. Isolate approved write execution and scan/build workloads into separate task roles, credentials and egress boundaries. The current PR executor is separate application logic but still runs in the API process.
+7. Add reconciliation, rollback/migration tests, rate budgets, retention and backup-restore drills before migrating production cases.
 
-Add Security & quality, Site Factory and Governance remediation incrementally. PR creation, merges, deployments, content writes, publication and messaging require separate tool contracts and approved policies. Review acceptance in this build authorizes none of these operations. Keep the requesting agent unable to approve its own proposed action.
-
-## Decisions still required for deployment
-
-- Enterprise CI identity and repository access policy; the source repository is `ramkarthik77/agentic-platform`.
-- AWS account, region, approved VPC/ingress and outbound paths.
-- Enterprise SSO/group-to-role mapping and audit retention.
-- Approved model endpoint, model ID, classification and data-retention policy.
-- Read scopes and credential owners for Cloud Manager, AEM, New Relic and Splunk.
-
-These do not block local development. No fabricated ARNs, account IDs, secret values or deployment targets are included.
-
-## Implementation references
-
-- [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/)
-- [SQLAlchemy SQLite](https://docs.sqlalchemy.org/en/20/dialects/sqlite.html)
-- [SQLAlchemy transactions](https://docs.sqlalchemy.org/en/20/tutorial/dbapi_transactions.html)
-- [Bedrock Converse SDK contract](https://docs.aws.amazon.com/boto3/latest/reference/services/bedrock-runtime/client/converse.html)
+The reference solution design remains the longer-term architecture, not a list of deployed services. Keep these boundaries visible in status and rollout documentation.

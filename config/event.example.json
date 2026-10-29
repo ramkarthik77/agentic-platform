@@ -1,0 +1,11 @@
+{
+  "event_id": "replace-with-provider-event-id",
+  "source": "cloud_manager",
+  "request": {
+    "kind": "core",
+    "objective": "release-readiness",
+    "environment": "stage",
+    "scope": "shared",
+    "execution_id": "replace-execution-id"
+  }
+}

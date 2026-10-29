@@ -1,0 +1,97 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "exclusiveMinimum": 0,
+      "title": "Id",
+      "type": "integer"
+    },
+    "name": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "market": {
+      "maxLength": 12,
+      "minLength": 2,
+      "title": "Market",
+      "type": "string"
+    },
+    "region": {
+      "default": "Configured",
+      "maxLength": 80,
+      "title": "Region",
+      "type": "string"
+    },
+    "theme": {
+      "maxLength": 80,
+      "title": "Theme",
+      "type": "string"
+    },
+    "template": {
+      "default": "Configured",
+      "maxLength": 80,
+      "title": "Template",
+      "type": "string"
+    },
+    "urls": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "propertyNames": {
+        "enum": [
+          "dev",
+          "stage",
+          "production"
+        ]
+      },
+      "title": "Urls",
+      "type": "object"
+    },
+    "pages": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Pages",
+      "type": "array"
+    },
+    "owner": {
+      "default": "",
+      "maxLength": 160,
+      "title": "Owner",
+      "type": "string"
+    },
+    "content_root": {
+      "default": "",
+      "maxLength": 300,
+      "title": "Content Root",
+      "type": "string"
+    },
+    "revision_header": {
+      "default": "",
+      "pattern": "^[A-Za-z0-9-]{0,80}$",
+      "title": "Revision Header",
+      "type": "string"
+    },
+    "inheritance_exceptions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Inheritance Exceptions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "market",
+    "theme",
+    "urls"
+  ],
+  "title": "Site",
+  "type": "object"
+}

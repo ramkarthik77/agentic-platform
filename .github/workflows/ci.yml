@@ -1,10 +1,14 @@
 name: AAAEM checks
 on: [push, pull_request]
+concurrency:
+  group: aaaem-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -33,3 +37,44 @@ jobs:
       - run: python -m pytest
         env:
           AAAEM_TEST_POSTGRES_URL: postgresql+psycopg://aaaem:test-only@localhost:5432/aaaem_test
+  infrastructure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.5'
+      - run: terraform -chdir=infra/aws fmt -check
+      - run: terraform -chdir=infra/aws init -backend=false
+      - run: terraform -chdir=infra/aws validate
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - run: docker build -t aaaem-app:ci .
+      - run: |
+          docker run -d --name aaaem-app -p 127.0.0.1:18000:8000 aaaem-app:ci
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:18000/healthz; then exit 0; fi
+            sleep 2
+          done
+          docker logs aaaem-app
+          exit 1
+      - run: docker build -f Dockerfile.verifier -t aaaem-verifier:ci .
+      - run: |
+          docker run --rm aaaem-verifier:ci python -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); b=p.chromium.launch(); print(b.version); b.close(); p.stop()"
+      - name: Exercise connected UI in the browser container
+        run: |
+          mkdir -p test-results
+          chmod 777 test-results
+          docker run --rm --network host -e AAAEM_BROWSER_TESTS=1 -e PYTHONPATH=/workspace/backend \
+            -v "$PWD:/workspace" -w /workspace aaaem-verifier:ci \
+            python -m pytest tests/test_browser.py -p no:cacheprovider
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: test-results/
+          if-no-files-found: ignore

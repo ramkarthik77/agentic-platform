@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "registry_file": "",
+  "environments": {
+    "stage": {
+      "connections": {
+        "cloud_manager": {
+          "driver": "cloud_manager",
+          "base_url": "https://cloudmanager.adobe.io",
+          "token_env": "",
+          "header_env": {
+            "x-api-key": "ADOBE_CLIENT_ID",
+            "x-gw-ims-org-id": "ADOBE_ORG_ID"
+          },
+          "parameters": {
+            "program_id": "",
+            "pipeline_id": "",
+            "environment_id": "",
+            "oauth": {
+              "token_endpoint": "",
+              "client_id_env": "ADOBE_CLIENT_ID",
+              "client_secret_env": "ADOBE_CLIENT_SECRET",
+              "scopes": ""
+            }
+          }
+        },
+        "new_relic": {
+          "driver": "new_relic",
+          "base_url": "https://api.newrelic.com/graphql",
+          "token_env": "NEW_RELIC_API_KEY",
+          "parameters": {
+            "account_id": "",
+            "nrql": ""
+          }
+        },
+        "splunk": {
+          "driver": "splunk",
+          "base_url": "",
+          "token_env": "SPLUNK_TOKEN",
+          "parameters": {
+            "search": ""
+          }
+        },
+        "snyk": {
+          "driver": "snyk",
+          "base_url": "https://api.snyk.io/rest",
+          "token_env": "SNYK_TOKEN",
+          "parameters": {
+            "organization_id": "",
+            "api_version": ""
+          }
+        },
+        "sonar": {
+          "driver": "sonar",
+          "base_url": "",
+          "token_env": "SONAR_TOKEN",
+          "parameters": {
+            "project_key": ""
+          }
+        },
+        "github": {
+          "driver": "github",
+          "base_url": "https://api.github.com",
+          "token_env": "AAAEM_GITHUB_TOKEN",
+          "parameters": {
+            "repository": "",
+            "branch": "main",
+            "review_paths": []
+          }
+        },
+        "aem": {
+          "driver": "bridge",
+          "base_url": "",
+          "token_env": "AEM_BRIDGE_TOKEN"
+        },
+        "verification": {
+          "driver": "verification",
+          "base_url": "",
+          "token_env": "AAAEM_VERIFIER_TOKEN",
+          "timeout_seconds": 60
+        }
+      },
+      "pull_requests": null
+    },
+    "dev": {
+      "connections": {},
+      "pull_requests": null
+    },
+    "production": {
+      "connections": {},
+      "pull_requests": null
+    }
+  },
+  "auth": {
+    "issuer": "",
+    "authorization_endpoint": "",
+    "token_endpoint": "",
+    "jwks_endpoint": "",
+    "client_id": "",
+    "client_secret_env": "AAAEM_OIDC_CLIENT_SECRET",
+    "group_claim": "groups",
+    "group_grants": {
+      "AAAEM-Operators": {
+        "roles": [
+          "operator"
+        ],
+        "environments": [
+          "dev",
+          "stage"
+        ]
+      },
+      "AAAEM-Reviewers": {
+        "roles": [
+          "reviewer"
+        ],
+        "environments": [
+          "dev",
+          "stage"
+        ]
+      },
+      "AAAEM-Admins": {
+        "roles": [
+          "admin"
+        ],
+        "environments": [
+          "dev",
+          "stage"
+        ]
+      }
+    },
+    "session_minutes": 60
+  },
+  "templates_directory": "",
+  "templates_approved": false,
+  "schedules": [
+    {
+      "id": "platform-health",
+      "kind": "core",
+      "objective": "platform-health",
+      "environment": "stage",
+      "interval_minutes": 1440,
+      "enabled": false
+    },
+    {
+      "id": "weekly-platform-brief",
+      "kind": "reporting",
+      "environment": "stage",
+      "interval_minutes": 10080,
+      "enabled": false
+    }
+  ],
+  "intake_secret_env": "AAAEM_INTAKE_SECRET",
+  "intake_environments": [
+    "dev",
+    "stage"
+  ]
+}

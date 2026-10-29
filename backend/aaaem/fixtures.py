@@ -21,7 +21,7 @@ def execution(request):
 
 
 def impact(request, sites):
-    selected = [s["id"] for s in sites if request["scope"] != "theme-04" or s["theme"] == "Theme 04"]
+    selected = request.get('site_ids', []) if request['scope'] == 'selected' else [s["id"] for s in sites if request["scope"] != "theme-04" or s["theme"] == "Theme 04"]
     return {"source": "fixture", "site_ids": selected,
             "reason": "Theme 04 consumers" if request["scope"] == "theme-04" else "Platform-wide baseline",
             "coverage_uncertain": request["scope"] == "unknown"}
@@ -47,3 +47,20 @@ def logs(request):
     return {"source": "fixture", "query": "approved-error-summary", "window_minutes": 30,
             "patterns": [{"pattern": "Upstream timeout on sample content route", "count": 42}]
             if request["scenario"] != "healthy" else [], "redacted": True}
+
+
+def findings(request, tool):
+    return {'source': 'fixture', 'complete': request['scenario'] != 'incomplete',
+            'findings': [{'id': tool + ':demo-1', 'provider': tool.split('.')[0], 'severity': 'high',
+                          'title': 'Synthetic dependency or configuration finding', 'status': 'open'}]
+                        if request['scenario'] == 'degraded' else [],
+            'quality_gate': 'ERROR' if request['scenario'] == 'degraded' else 'OK',
+            'coverage_note': 'Synthetic findings; no repository or scanner was queried.'}
+
+
+def governance(request, selected):
+    return {'source': 'fixture', 'complete': request['scenario'] != 'incomplete', 'site_ids': selected,
+            'findings': [{'site_id': selected[0], 'category': 'inheritance', 'severity': 'medium',
+                          'message': 'Synthetic inheritance exception requires review'}]
+                        if selected and request['scenario'] == 'degraded' else [],
+            'coverage_note': 'Fixture inheritance metadata; no AEM author was queried.'}

@@ -1,0 +1,347 @@
+{
+  "$defs": {
+    "AccessGrant": {
+      "additionalProperties": false,
+      "properties": {
+        "roles": {
+          "items": {
+            "enum": [
+              "reader",
+              "operator",
+              "reviewer",
+              "admin"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Roles",
+          "type": "array"
+        },
+        "environments": {
+          "items": {
+            "enum": [
+              "dev",
+              "stage",
+              "production"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Environments",
+          "type": "array"
+        }
+      },
+      "required": [
+        "roles",
+        "environments"
+      ],
+      "title": "AccessGrant",
+      "type": "object"
+    },
+    "AuthConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "issuer": {
+          "default": "",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "authorization_endpoint": {
+          "default": "",
+          "title": "Authorization Endpoint",
+          "type": "string"
+        },
+        "token_endpoint": {
+          "default": "",
+          "title": "Token Endpoint",
+          "type": "string"
+        },
+        "jwks_endpoint": {
+          "default": "",
+          "title": "Jwks Endpoint",
+          "type": "string"
+        },
+        "client_id": {
+          "default": "",
+          "title": "Client Id",
+          "type": "string"
+        },
+        "client_secret_env": {
+          "default": "AAAEM_OIDC_CLIENT_SECRET",
+          "title": "Client Secret Env",
+          "type": "string"
+        },
+        "group_claim": {
+          "default": "groups",
+          "title": "Group Claim",
+          "type": "string"
+        },
+        "group_grants": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AccessGrant"
+          },
+          "title": "Group Grants",
+          "type": "object"
+        },
+        "session_minutes": {
+          "default": 60,
+          "maximum": 480,
+          "minimum": 5,
+          "title": "Session Minutes",
+          "type": "integer"
+        }
+      },
+      "title": "AuthConfig",
+      "type": "object"
+    },
+    "Connection": {
+      "additionalProperties": false,
+      "properties": {
+        "driver": {
+          "default": "disabled",
+          "enum": [
+            "disabled",
+            "cloud_manager",
+            "new_relic",
+            "splunk",
+            "snyk",
+            "sonar",
+            "github",
+            "bridge",
+            "verification"
+          ],
+          "title": "Driver",
+          "type": "string"
+        },
+        "base_url": {
+          "default": "",
+          "title": "Base Url",
+          "type": "string"
+        },
+        "token_env": {
+          "default": "",
+          "title": "Token Env",
+          "type": "string"
+        },
+        "header_env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Header Env",
+          "type": "object"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "timeout_seconds": {
+          "default": 20,
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        },
+        "max_pages": {
+          "default": 5,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Max Pages",
+          "type": "integer"
+        }
+      },
+      "title": "Connection",
+      "type": "object"
+    },
+    "EnvironmentConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "connections": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Connection"
+          },
+          "title": "Connections",
+          "type": "object"
+        },
+        "pull_requests": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GitTarget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "EnvironmentConfig",
+      "type": "object"
+    },
+    "GitTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "title": "Repository",
+          "type": "string"
+        },
+        "base_branch": {
+          "default": "main",
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9_.\\-/]+$",
+          "title": "Base Branch",
+          "type": "string"
+        },
+        "allowed_prefixes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Allowed Prefixes",
+          "type": "array"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "repository",
+        "allowed_prefixes"
+      ],
+      "title": "GitTarget",
+      "type": "object"
+    },
+    "Schedule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z0-9-]{1,60}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "core",
+            "release",
+            "incident",
+            "security",
+            "governance",
+            "reporting"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "objective": {
+          "default": "platform-health",
+          "enum": [
+            "release-readiness",
+            "incident-investigation",
+            "platform-health"
+          ],
+          "title": "Objective",
+          "type": "string"
+        },
+        "environment": {
+          "default": "stage",
+          "enum": [
+            "dev",
+            "stage",
+            "production"
+          ],
+          "title": "Environment",
+          "type": "string"
+        },
+        "interval_minutes": {
+          "maximum": 10080,
+          "minimum": 5,
+          "title": "Interval Minutes",
+          "type": "integer"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "interval_minutes"
+      ],
+      "title": "Schedule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "registry_file": {
+      "default": "",
+      "title": "Registry File",
+      "type": "string"
+    },
+    "environments": {
+      "additionalProperties": {
+        "$ref": "#/$defs/EnvironmentConfig"
+      },
+      "propertyNames": {
+        "enum": [
+          "dev",
+          "stage",
+          "production"
+        ]
+      },
+      "title": "Environments",
+      "type": "object"
+    },
+    "auth": {
+      "$ref": "#/$defs/AuthConfig"
+    },
+    "templates_directory": {
+      "default": "",
+      "title": "Templates Directory",
+      "type": "string"
+    },
+    "templates_approved": {
+      "default": false,
+      "title": "Templates Approved",
+      "type": "boolean"
+    },
+    "schedules": {
+      "items": {
+        "$ref": "#/$defs/Schedule"
+      },
+      "maxItems": 20,
+      "title": "Schedules",
+      "type": "array"
+    },
+    "intake_secret_env": {
+      "default": "AAAEM_INTAKE_SECRET",
+      "title": "Intake Secret Env",
+      "type": "string"
+    },
+    "intake_environments": {
+      "items": {
+        "enum": [
+          "dev",
+          "stage",
+          "production"
+        ],
+        "type": "string"
+      },
+      "title": "Intake Environments",
+      "type": "array"
+    }
+  },
+  "title": "WorkspaceConfig",
+  "type": "object"
+}

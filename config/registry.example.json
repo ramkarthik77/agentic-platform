@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Example brand",
+    "market": "US",
+    "region": "North America",
+    "theme": "standard",
+    "template": "AEM standard site",
+    "urls": {
+      "stage": "https://stage.example.com",
+      "production": "https://www.example.com"
+    },
+    "pages": [
+      "/",
+      "/contact"
+    ],
+    "owner": "Platform team",
+    "content_root": "/content/example/us/en",
+    "inheritance_exceptions": [],
+    "revision_header": "X-AAAEM-Revision"
+  }
+]

@@ -1,7 +1,7 @@
 [project]
 name = "aaaem-agentic-platform"
-version = "0.1.0"
-description = "Standalone AAAEM operations workspace and bounded Phase 1 agent workflows"
+version = "0.2.0"
+description = "Standalone AAAEM agent team with configurable integrations and governed draft PRs"
 requires-python = ">=3.12"
 
 [tool.pytest.ini_options]

@@ -1,9 +1,9 @@
 {
   "name": "aaaem-agentic-platform",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
-    "dev": "python3 scripts/serve.py",
+    "dev": ".venv/bin/python scripts/serve.py",
     "check": "node --check web/assets/app.js"
   }
 }
