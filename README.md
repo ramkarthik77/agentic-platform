@@ -1,6 +1,6 @@
-# AAAEM Agentic Platform
+# AABTS Agentic Platform
 
-A standalone operations workspace for the AAAEM platform: **one orchestrator and six specialists**, an animated web UI, persisted evidence, environment-scoped access, and governed draft pull requests. It is independent of other applications.
+A standalone operations workspace for the AABTS platform: **one orchestrator and six specialists**, an animated web UI, persisted evidence, environment-scoped access, and governed draft pull requests. It is independent of other applications.
 
 **Version 0.2 is a configuration-ready foundation, not a tenant-certified production system.** All seven roles execute bounded workflows. The default experience uses clearly labeled synthetic data and deterministic summaries; no credentials are required. Live adapters, OIDC, a separate browser verifier, and an AWS deployment starter are included. Your tenant connections and hosting still need configuration and acceptance testing.
 
@@ -83,11 +83,11 @@ node --check web/assets/app.js
 python -m pip check
 ```
 
-The PostgreSQL integration test requires `AAAEM_TEST_POSTGRES_URL` pointing to a disposable database named `aaaem_test`. Browser tests require Chromium:
+The PostgreSQL integration test requires `AABTS_TEST_POSTGRES_URL` pointing to a disposable database named `aaaem_test`. Browser tests require Chromium:
 
 ```bash
 python -m playwright install --with-deps chromium
-AAAEM_BROWSER_TESTS=1 python -m pytest tests/test_browser.py
+AABTS_BROWSER_TESTS=1 python -m pytest tests/test_browser.py
 ```
 
 GitHub Actions runs application tests, PostgreSQL, the connected Chromium UI flow, Terraform validation and container checks. See [validation](docs/VALIDATION.md) for the actual results and unverified boundaries.
