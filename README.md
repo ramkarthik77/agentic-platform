@@ -4,6 +4,10 @@ A standalone operations workspace for the AABTS platform: **one orchestrator and
 
 **Version 0.2 is a configuration-ready foundation, not a tenant-certified production system.** All seven roles execute bounded workflows. The default experience uses clearly labeled synthetic data and deterministic summaries; no credentials are required. Live adapters, OIDC, a separate browser verifier, and an AWS deployment starter are included. Your tenant connections and hosting still need configuration and acceptance testing.
 
+## Branding and compatibility
+
+**AABTS** is the product name shown in the workspace and documentation. Existing `AAAEM_*` environment variables, `X-AAAEM-*` protocol headers, internal `aaaem` Python paths, database identifiers and integration contracts are preserved in v0.3 for backward compatibility. Do not rename these without a versioned migration and regression tests. Existing AEM/Adobe references identify the technology, not the old product name.
+
 ## Run locally
 
 Requires Python 3.12 or newer. Node is only needed for the JavaScript syntax check.
