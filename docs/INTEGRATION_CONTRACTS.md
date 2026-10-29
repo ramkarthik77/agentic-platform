@@ -25,11 +25,11 @@ Sources: `cloud_manager`, `monitoring`, `teams`, `scheduler`. Requests use the s
 Headers:
 
 ```text
-X-AAAEM-Timestamp: <Unix seconds>
-X-AAAEM-Signature: <hex HMAC-SHA256(secret, timestamp + "." + exact_body_bytes)>
+X-AABTS-Timestamp: <Unix seconds>
+X-AABTS-Signature: <hex HMAC-SHA256(secret, timestamp + "." + exact_body_bytes)>
 ```
 
-The timestamp must be within five minutes. The shared secret must contain at least 32 random characters and is read from `intake_secret_env` (default `AAAEM_INTAKE_SECRET`). Intake only accepts environments listed in `intake_environments`, default dev/stage. First accepted delivery returns `202 {"id":"RUN-…","created":true}`. A duplicate source/event ID and identical request returns the same run with `200`; changing the request under that identity returns `409`.
+The timestamp must be within five minutes. The shared secret must contain at least 32 random characters and is read from `intake_secret_env` (default `AABTS_INTAKE_SECRET`). Intake only accepts environments listed in `intake_environments`, default dev/stage. First accepted delivery returns `202 {"id":"RUN-…","created":true}`. A duplicate source/event ID and identical request returns the same run with `200`; changing the request under that identity returns `409`.
 
 Example local submission after setting the secret in `.env`:
 
@@ -108,7 +108,7 @@ Use the native `verification` driver for browser results; the generic read bridg
 
 ## Browser verification service
 
-The included `backend/aaaem/verifier.py` implements `GET /healthz` and `POST /v1/verify`. Both require `Authorization: Bearer <AAAEM_VERIFIER_TOKEN>`. The application sends batches of at most four sites and renews its workflow lease between batches.
+The included `backend/aaaem/verifier.py` implements `GET /healthz` and `POST /v1/verify`. Both require `Authorization: Bearer <AABTS_VERIFIER_TOKEN>`. The application sends batches of at most four sites and renews its workflow lease between batches.
 
 ```json
 {
@@ -121,7 +121,7 @@ The included `backend/aaaem/verifier.py` implements `GET /healthz` and `POST /v1
       "id": 1,
       "url": "https://www.example.com",
       "pages": ["/", "/contact"],
-      "revision_header": "X-AAAEM-Revision"
+      "revision_header": "X-AABTS-Revision"
     }
   ]
 }
