@@ -1,4 +1,4 @@
-# Configure AAAEM Platform
+# Configure AABTS Platform
 
 The repository runs end to end locally with synthetic integrations. To use your systems, configure the files below and validate a stage workflow before enabling recurring work. All paths in this guide are relative to the repository root; run the scripts there.
 
@@ -6,9 +6,9 @@ The repository runs end to end locally with synthetic integrations. To use your 
 
 | Setting | Values | Meaning |
 | --- | --- | --- |
-| `AAAEM_MODE` | `local`, `production` | Trusted loopback operator, or OIDC-authenticated hosted workspace |
-| `AAAEM_INTEGRATION_MODE` | `fixture`, `live` | Synthetic enterprise inputs, or configured live read adapters |
-| `AAAEM_MODEL_PROVIDER` | `fixture`, `bedrock`, `openai_compatible` | Deterministic text, Bedrock inference, or your approved compatible gateway |
+| `AABTS_MODE` | `local`, `production` | Trusted loopback operator, or OIDC-authenticated hosted workspace |
+| `AABTS_INTEGRATION_MODE` | `fixture`, `live` | Synthetic enterprise inputs, or configured live read adapters |
+| `AABTS_MODEL_PROVIDER` | `fixture`, `bedrock`, `openai_compatible` | Deterministic text, Bedrock inference, or your approved compatible gateway |
 
 Live integrations do not require a model subscription. Selecting Bedrock alone does not connect enterprise systems. Model inference is billable when enabled. Evidence is sent to the selected model endpoint; review that data flow with your platform owner.
 
@@ -23,11 +23,11 @@ cp config/registry.example.json config/registry.local.json
 Set `registry_file` in `config/local.json` to `config/registry.local.json`. Replace the example registry with your own sites. In `.env` set:
 
 ```dotenv
-AAAEM_MODE=local
-AAAEM_INTEGRATION_MODE=live
-AAAEM_CONFIG_FILE=config/local.json
+AABTS_MODE=local
+AABTS_INTEGRATION_MODE=live
+AABTS_CONFIG_FILE=config/local.json
 DATABASE_URL=sqlite:///.data/aaaem-live.db
-AAAEM_MODEL_PROVIDER=fixture
+AABTS_MODEL_PROVIDER=fixture
 ```
 
 Never reuse a fixture database for live evidence. The application rejects this mismatch. Configuration and registry examples include JSON schemas for editor validation. Secrets are supplied in `.env` locally or injected by your hosting environment; JSON fields such as `token_env` contain **variable names**, not values. Local files, databases and credentials are ignored by Git. Review `git status` before pushing tenant-specific files.
@@ -52,11 +52,11 @@ Each `environments.dev|stage|production.connections` entry is separate. Copy sta
 | Splunk | `splunk`, HTTPS management API origin, including port if applicable | Approved summary SPL; `SPLUNK_TOKEN` with search-only permissions |
 | Snyk | `snyk`, your region's REST API base ending in `/rest` | Organization ID; supported API date in `api_version`; `SNYK_TOKEN` |
 | Sonar | `sonar`, SonarQube/SonarCloud API origin | Project key; `SONAR_TOKEN` |
-| GitHub | `github`, `https://api.github.com` or your supported API base | `owner/repository`, branch and exact `review_paths`; `AAAEM_GITHUB_TOKEN` |
+| GitHub | `github`, `https://api.github.com` or your supported API base | `owner/repository`, branch and exact `review_paths`; `AABTS_GITHUB_TOKEN` |
 | AEM metadata | `bridge`, your internal bridge HTTPS base | `AEM_BRIDGE_TOKEN`; the contract in INTEGRATION_CONTRACTS.md |
-| Browser verification | `verification`, your verification service HTTPS base | `AAAEM_VERIFIER_TOKEN`; set timeout to 60 seconds |
+| Browser verification | `verification`, your verification service HTTPS base | `AABTS_VERIFIER_TOKEN`; set timeout to 60 seconds |
 
-All base URLs require HTTPS and reject embedded credentials, query strings and fragments. The client verifies TLS, refuses redirects, bounds responses to 2 MB and uses per-connection timeouts. A private CA can be provided through `AAAEM_CA_BUNDLE`. Proxy environment variables are deliberately not inherited; use your network routing or implement an explicitly reviewed transport.
+All base URLs require HTTPS and reject embedded credentials, query strings and fragments. The client verifies TLS, refuses redirects, bounds responses to 2 MB and uses per-connection timeouts. A private CA can be provided through `AABTS_CA_BUNDLE`. Proxy environment variables are deliberately not inherited; use your network routing or implement an explicitly reviewed transport.
 
 Cloud Manager supports a static bearer token through `token_env`, or client-credentials OAuth through `parameters.oauth`. Use the exact token endpoint/scopes assigned to your Adobe integration, plus `x-api-key` and `x-gw-ims-org-id` headers. A completed pipeline must match the configured program, pipeline and environment. If its response does not contain one unambiguous commit ID, release verification remains inconclusive. You can supply a reviewed `bridge` adapter for tenant-specific execution/build metadata; the generic bridge client is included, not a tenant-specific bridge server.
 
@@ -77,7 +77,7 @@ Snyk/Sonar pagination is bounded by `max_pages` (default 5, maximum 20). Truncat
 
 Each site needs a stable positive ID, name, market, theme, and an environment-to-URL map. Configure 1–10 page paths per site, an optional AEM content root and reviewed inheritance exceptions. The registry supports up to 1,000 entries; a single run supports at most 250 sites. Split larger estates into selected-scope runs.
 
-`revision_header` identifies the HTTP response header your deployment emits, for example `X-AAAEM-Revision`. Its value must be the exact deployed commit ID on **every configured page**. It must come from the application/deployment, not an edge rule that echoes a caller's requested value. No expected revision is sent as a browser request header.
+`revision_header` identifies the HTTP response header your deployment emits, for example `X-AABTS-Revision`. Its value must be the exact deployed commit ID on **every configured page**. It must come from the application/deployment, not an edge rule that echoes a caller's requested value. No expected revision is sent as a browser request header.
 
 A release is `verified` only when execution/environment/revision, exact site scope, positive check counts, deployment completion, measured response-header revision, and fresh complete browser evidence agree. Missing revision headers or build metadata produce `inconclusive`, even if page checks pass. Evidence older than two hours, from before the deployment finished, or over one minute in the future cannot verify a release. Governance checks can run without a release revision.
 
@@ -90,7 +90,7 @@ python -m playwright install --with-deps chromium
 python scripts/serve_verifier.py
 ```
 
-Set a random 32+ character `AAAEM_VERIFIER_TOKEN` and comma-separated exact `AAAEM_VERIFIER_ALLOWED_HOSTS` in `.env`. Include legitimate asset/CDN hosts as well as page hosts. The scanner accepts only public HTTPS destinations, rejects private DNS addresses, blocks service workers/WebSockets, and aborts non-GET/HEAD requests. Missing host permissions make coverage incomplete. Private author/AEM endpoints belong behind the metadata bridge, not this public-site scanner.
+Set a random 32+ character `AABTS_VERIFIER_TOKEN` and comma-separated exact `AABTS_VERIFIER_ALLOWED_HOSTS` in `.env`. Include legitimate asset/CDN hosts as well as page hosts. The scanner accepts only public HTTPS destinations, rejects private DNS addresses, blocks service workers/WebSockets, and aborts non-GET/HEAD requests. Missing host permissions make coverage incomplete. Private author/AEM endpoints belong behind the metadata bridge, not this public-site scanner.
 
 Expose this service behind an authenticated-network HTTPS proxy, or pass `--ssl-certfile` and `--ssl-keyfile` for local TLS. The application integration URL must use HTTPS. `Dockerfile.verifier` includes Chromium; it is a separate service from the main application image. Use an isolated subnet/egress policy without access to cloud metadata or internal services. Application DNS checks alone are not an SSRF boundary against DNS changes.
 
@@ -98,7 +98,7 @@ The worker scans batches of four sites, with one batch in flight and a 45-second
 
 ## 6. Configure enterprise sign-in
 
-Hosted mode requires PostgreSQL, `AAAEM_INTEGRATION_MODE=live`, an HTTPS origin and complete OIDC settings. Set explicit authorization, token and JWKS URLs from your identity provider; discovery is not fetched automatically. Register the exact callback:
+Hosted mode requires PostgreSQL, `AABTS_INTEGRATION_MODE=live`, an HTTPS origin and complete OIDC settings. Set explicit authorization, token and JWKS URLs from your identity provider; discovery is not fetched automatically. Register the exact callback:
 
 ```text
 https://YOUR_WORKSPACE_HOST/auth/callback
@@ -120,11 +120,11 @@ Grants remain paired: stage admin plus production reader does not grant producti
 Sessions are stored in PostgreSQL, capped at the ID token expiry/session lifetime, and use Secure HttpOnly cookies with per-session CSRF protection. Sign-out invalidates the local session; it does not log the person out of their identity provider. There is no token refresh or instant IdP revocation feed; group changes take effect at the next login/expiry.
 
 ```dotenv
-AAAEM_MODE=production
-AAAEM_PUBLIC_ORIGIN=https://YOUR_WORKSPACE_HOST
-AAAEM_ALLOWED_HOSTS=YOUR_WORKSPACE_HOST,127.0.0.1
+AABTS_MODE=production
+AABTS_PUBLIC_ORIGIN=https://YOUR_WORKSPACE_HOST
+AABTS_ALLOWED_HOSTS=YOUR_WORKSPACE_HOST,127.0.0.1
 DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:5432/aaaem?sslmode=require
-AAAEM_OIDC_CLIENT_SECRET=YOUR_SECRET
+AABTS_OIDC_CLIENT_SECRET=YOUR_SECRET
 ```
 
 Use a URL-encoded password and your organization's PostgreSQL TLS policy. For certificate verification, configure `sslmode=verify-full` and a trusted database CA available to the container. Use a dedicated application database, backups and restricted networking.
@@ -152,7 +152,7 @@ Reporting/Security generate Markdown files under `docs/agent-reports/`. Approvin
 
 ## 8. Events and schedules
 
-`POST /api/intake` accepts the normalized, signed envelope in INTEGRATION_CONTRACTS.md. A vendor-specific receiver must first verify Adobe/monitoring/Teams authentication, normalize the event, then sign it with `AAAEM_INTAKE_SECRET`. This is not a native Teams bot or a direct vendor-webhook signature implementation.
+`POST /api/intake` accepts the normalized, signed envelope in INTEGRATION_CONTRACTS.md. A vendor-specific receiver must first verify Adobe/monitoring/Teams authentication, normalize the event, then sign it with `AABTS_INTAKE_SECRET`. This is not a native Teams bot or a direct vendor-webhook signature implementation.
 
 ```bash
 python scripts/submit_event.py --help
